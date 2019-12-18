@@ -4,11 +4,17 @@ package Model.dataTypes;
 public class TermDetails {
     private int corpusTF;
     private int df;
-    private int postingPointer;
+    private String postingPointer;
 
     public TermDetails(int df, int tf) {
         this.df = df;
         this.corpusTF = tf;
+    }
+
+    public TermDetails(int corpusTF, int df, String postingPointer) {
+        this.corpusTF = corpusTF;
+        this.df = df;
+        this.postingPointer = postingPointer;
     }
 
     public void addDF(int df){
@@ -19,7 +25,7 @@ public class TermDetails {
         this.corpusTF += tf;
     }
 
-    public void setPostingPointer(int postingPointer) {
+    public void setPostingPointer(String postingPointer) {
         this.postingPointer = postingPointer;
     }
 
@@ -31,7 +37,7 @@ public class TermDetails {
         return df;
     }
 
-    public int getPostingPointer() {
+    public String getPostingPointer() {
         return postingPointer;
     }
 

@@ -83,8 +83,8 @@ public class Indexer {
     /**
      * creates final posting file and inverted index dictionary
      */
-    public static void createInvertedIndex(){
+    public static Map<String, TermDetails> createInvertedIndex(){
         // calling for the InvertedIndexCreator to create the final posting file and inverted index dictionary
-        InvertedIndexCreator.create(invertedIndexDictionary);
+        return InvertedIndexCreator.create(invertedIndexDictionary);
     }
 }

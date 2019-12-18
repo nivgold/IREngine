@@ -45,10 +45,11 @@ public class ReadFile{
                         stringBuilder = new StringBuilder();
                     }
                     else if(line.contains("</DOC>")){
+                        System.out.println(stringBuilder.toString());
                         result.add(stringBuilder.toString() + " ");
                     }
                     else{
-                        stringBuilder.append(line);
+                        stringBuilder.append(line+" ");
                     }
                 }
             }

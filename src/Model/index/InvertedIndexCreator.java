@@ -15,7 +15,8 @@ public class InvertedIndexCreator {
     private final static String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
 
     // TODO: look for a way to minimize the memory consumption when converting the ConcurrentHashMap to regular HashMap
-    public static void create(ConcurrentHashMap<String, TermDetails> initialDictionary){
+    public static Map<String, TermDetails> create(ConcurrentHashMap<String, TermDetails> initialDictionary){
+
         Map<String, TermDetails> invertedIndexDictionary = new HashMap<>(initialDictionary);
         System.out.println(invertedIndexDictionary.size() +" Terms is in the inverted index dictionary initially");
         Iterator<String> iterator = invertedIndexDictionary.keySet().iterator();
@@ -45,6 +46,7 @@ public class InvertedIndexCreator {
         System.out.println("Merger Finished");
 
         saveToDisk(invertedIndexDictionary);
+        return invertedIndexDictionary;
     }
 
     private static void saveToDisk(Map<String, TermDetails> invertedIndexDictionary){
@@ -54,7 +56,8 @@ public class InvertedIndexCreator {
             int lineNumber = 0;
             while ((currentLine=bufferedReader.readLine()) != null){
                 String term = currentLine.substring(0, currentLine.indexOf("="));
-                invertedIndexDictionary.get(term).setPostingPointer(lineNumber);
+                TermDetails termDetails = invertedIndexDictionary.get(term);
+                termDetails.setPostingPointer(lineNumber+"");
                 lineNumber++;
             }
             bufferedReader.close();

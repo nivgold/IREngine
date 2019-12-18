@@ -2,6 +2,8 @@ package View;
 
 import Model.Manager;
 import Model.communicator.ConfigReader;
+import Model.dataTypes.Term;
+import Model.preproccesing.ReadFile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -9,16 +11,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.cell.PropertyValueFactory;;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class Controller {
     private Stage mainStage;
@@ -88,6 +88,8 @@ public class Controller {
         else{
             // start process
             this.manager.startProcess();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Files Read: "+ ReadFile.counter.get()+"\nUnique Terms: "+manager.getUniqueTermsNum()+"\nTotal Time: "+manager.getTotalTime());
+            alert.show();
         }
     }
 
@@ -130,46 +132,63 @@ public class Controller {
     }
 
     public void showDictionaryButton(ActionEvent actionEvent){
-        ConfigReader.loadConfiguration();
+        //ConfigReader.loadConfiguration();
         File dictionary = new File(ConfigReader.INVERTED_DICTIONARY_FILE_PATH);
         if (!dictionary.exists()){
             Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Found In Posting Path");
             alert.show();
         }
         else{
-
             // show dictionary
-
-            Stage dialogStage = new Stage();
-            ScrollPane scrollPane = new ScrollPane();
-            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-            StringBuilder stringBuilder = new StringBuilder();
-
+            Stage dictionaryStage = new Stage();
+            TableView tableView = new TableView();
+            TableColumn<String, Term> column1 = new TableColumn<>("Term");
+            column1.setCellValueFactory(new PropertyValueFactory<>("value"));
+            TableColumn<String, Term> column2 = new TableColumn<>("TF");
+            column2.setCellValueFactory(new PropertyValueFactory<>("corpusTF"));
+            tableView.getColumns().addAll(column1, column2);
             try{
+                List<String> sortedDictionary = new ArrayList<>();
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
                 String currentLine = "";
                 while ((currentLine = bufferedReader.readLine()) != null){
-                    stringBuilder.append(currentLine+"\n");
+                    sortedDictionary.add(currentLine);
+                }
+                Collections.sort(sortedDictionary);
+                for (String entry : sortedDictionary){
+                    int firstDelimiter = entry.indexOf(';');
+                    int secondDelimiter = entry.indexOf(';', firstDelimiter+1);
+                    String term = entry.substring(0, firstDelimiter);
+                    String corpusTF = entry.substring(firstDelimiter+1, secondDelimiter);
+                    tableView.getItems().add(new Term(term, corpusTF));
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("XXX");
-            TableView tableView = new TableView<>();
-            TableColumn<String, String> termValue = new TableColumn<>("Term");
 
-            TableColumn<String, String> corpusTF = new TableColumn<>("TF");
-            tableView.getColumns().add(termValue);
-            tableView.getColumns().add(corpusTF);
+            VBox vBox = new VBox(tableView);
+            Scene scene = new Scene(vBox);
+            dictionaryStage.setScene(scene);
+            dictionaryStage.initModality(Modality.APPLICATION_MODAL);
+            dictionaryStage.show();
 
+        }
+    }
 
-            scrollPane.setContent(tableView);
-            Scene scene = new Scene(scrollPane, 200, 1000);
-            dialogStage.setScene(scene);
-            dialogStage.show();
+    public void load_dictionaryAction(ActionEvent actionEvent){
+        File dictionaryFile = new File(ConfigReader.INVERTED_DICTIONARY_FILE_PATH);
+        if (!dictionaryFile.exists()){
+            Alert alert;
+            if (ConfigReader.STEMMING)
+                alert = new Alert(Alert.AlertType.ERROR, "Can't Locate 'Stemming Dictionary'");
+            else
+                alert = new Alert(Alert.AlertType.ERROR, "Can't Locate 'No Stemming Dictionary'");
+            alert.show();
+        }
+        else{
+            manager.loadDictionary();
         }
     }
 }

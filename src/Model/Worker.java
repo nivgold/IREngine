@@ -31,7 +31,7 @@ public class Worker implements Runnable{
     // the indexer that responsible for writing the per-posting for the batch
     public Indexer indexer;
 
-    private final String DOCUMENT_POSTING_PATH = ConfigReader.POSTING_DIR_PATH;
+    private final String DOCUMENT_POSTING_PATH = ConfigReader.DOCUMENT_POSTING_PATH;
 
     public Worker(int workerID, int startIndex, int totalFiles) {
         this.workerID = workerID;
@@ -73,7 +73,7 @@ public class Worker implements Runnable{
 
     private void saveDocsToDisk(HashSet<Document> documents, int currentBatch) {
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(DOCUMENT_POSTING_PATH+"\\document_posting_worker"+workerID+"_batch"+(currentBatch+1)+".txt"));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(DOCUMENT_POSTING_PATH+"document_posting_worker"+workerID+"_batch"+(currentBatch+1)+".txt"));
             Iterator<Document> iterator = documents.iterator();
             while (iterator.hasNext()) {
                 Document document = iterator.next();

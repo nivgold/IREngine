@@ -1,6 +1,7 @@
 package Model;
 
 import Model.communicator.ConfigReader;
+import Model.dataTypes.TermDetails;
 import Model.index.Indexer;
 import Model.preproccesing.ReadFile;
 
@@ -9,10 +10,13 @@ import java.util.*;
 
 // calling the workers and finally creating the final posting file and inverted index dictionary
 public class Manager {
+    private Map<String, TermDetails> dictionary;
     private int CORPUS_FILE_NUM;
     private int WORKERS_NUM;
     private int DOCS_PER_WORKER;
     private int DOCS_LEFT;
+    private double total;
+
 
     public void startProcess() {
         double start = System.nanoTime();
@@ -44,12 +48,13 @@ public class Manager {
         System.out.println("number of files read: "+ ReadFile.counter.get());
 
         // all the batch posting were created and now the final indexing can start
-        Indexer.createInvertedIndex();
+        this.dictionary = Indexer.createInvertedIndex();
 
-        cleanRAM();
+        // clean the up-updated concurrent HashMap
+        Indexer.invertedIndexDictionary.clear();
 
         double end = System.nanoTime();
-        double total = (end - start)/1000000000.0;
+        this.total = (end - start)/1000000000.0;
         System.out.println("Total time: "+(total/60)+" mins");
     }
 
@@ -71,24 +76,35 @@ public class Manager {
     }
 
     public void cleanRAM(){
-        Indexer.invertedIndexDictionary.clear();
+        // clean RAM
     }
 
-    public List<String> getSortedDictionary(){
-        HashSet<String> set = new HashSet<>();
+    public void loadDictionary(){
         try{
+            this.dictionary = new HashMap<>();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
             String currentLine = "";
             while ((currentLine = bufferedReader.readLine()) != null){
-                set.add(currentLine+"\n");
+                String[] dictionaryEntryData = currentLine.split(";");
+                String term = dictionaryEntryData[0];
+                int corpusTF = Integer.parseInt(dictionaryEntryData[1]);
+                int df = Integer.parseInt(dictionaryEntryData[2]);
+                String postingPointer = dictionaryEntryData[3];
+                this.dictionary.put(term, new TermDetails(corpusTF, df, postingPointer));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ArrayList<String> sorted = new ArrayList<>(set);
-        Collections.sort(sorted);
-        return sorted;
+        System.out.println(this.dictionary.size());
+    }
+
+    public int getUniqueTermsNum(){
+        return this.dictionary.size();
+    }
+
+    public double getTotalTime(){
+        return this.total;
     }
 }

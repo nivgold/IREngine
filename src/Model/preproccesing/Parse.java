@@ -1,5 +1,6 @@
 package Model.preproccesing;
 
+import Model.communicator.ConfigReader;
 import Model.dataTypes.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -956,12 +957,18 @@ public class Parse{
      */
     private void parseSingleWord(Phrase phrase, Document document) {
         if (!stop_words.contains(phrase.getValue().toLowerCase())) {
-            Stemmer stemmer = new Stemmer();
-            stemmer.add(phrase.getValue().toLowerCase().toCharArray(), phrase.getValue().length());
-            stemmer.stem();
-            String toAdd = stemmer.toString();
+            String toAdd = phrase.getValue();
+            if (ConfigReader.STEMMING) {
+                Stemmer stemmer = new Stemmer();
+                stemmer.add(toAdd.toLowerCase().toCharArray(), phrase.getValue().length());
+                stemmer.stem();
+                toAdd = stemmer.toString();
+            }
             if (isFirstCharCapital(phrase))
                 toAdd = toAdd.toUpperCase();
+            else{
+                toAdd = toAdd.toLowerCase();
+            }
             addToHashMap(toAdd, document);
         }
     }

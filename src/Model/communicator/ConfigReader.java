@@ -1,5 +1,6 @@
 package Model.communicator;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.Properties;
 
@@ -16,6 +17,7 @@ public class ConfigReader {
     public static String FINAL_POSTING_FILE_PATH;
     public static String INVERTED_DICTIONARY_FILE_PATH;
     public static String STOP_WORDS_FILE_PATH;
+    public static String DOCUMENT_POSTING_PATH;
     public static boolean STEMMING = false;
 
     public static void loadConfiguration(){
@@ -27,25 +29,6 @@ public class ConfigReader {
             WORKER_NUM = Integer.parseInt(properties.getProperty("WORKER_NUM"));
             WORKER_BATCH_NUM = Integer.parseInt(properties.getProperty("WORKER_BATCH_NUM"));
 
-            // temp directory for batch pre-posting files
-            BATCH_PRE_POSTING_DIR_PATH = POSTING_DIR_PATH +"\\temp";
-
-            if (STEMMING){
-                // final posting file path
-                FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\stemming_posting.txt";
-                // inverted dictionary file path
-                INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\stemming_dictionary.txt";
-            }
-            else{
-                // final posting file path
-                FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_posting.txt";
-                // inverted dictionary file path
-                INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_dictionary.txt";
-            }
-
-            // stop words file path
-            STOP_WORDS_FILE_PATH = CORPUS_DIR_PATH + "\\05 stop_words.txt";
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -55,11 +38,41 @@ public class ConfigReader {
 
     public static void updateCorpusPath(String newCorpusPath){
         CORPUS_DIR_PATH = newCorpusPath;
+
+        // stop words file path
+        STOP_WORDS_FILE_PATH = CORPUS_DIR_PATH + "\\05 stop_words.txt";
     }
     public static void updatePostingPath(String newPostingPath){
         POSTING_DIR_PATH = newPostingPath;
+
+        // temp directory for batch pre-posting files
+        BATCH_PRE_POSTING_DIR_PATH = POSTING_DIR_PATH +"\\temp";
+
+        updatePostingDependencies();
     }
     public static void setStemming(boolean stemming){
         STEMMING = stemming;
+        updatePostingDependencies();
+    }
+
+    private static void updatePostingDependencies(){
+        System.out.println(STEMMING);
+        if (STEMMING){
+            // final posting file path
+            FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\stemming_posting.txt";
+            // inverted dictionary file path
+            INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\stemming_dictionary.txt";
+            // document posting path
+            DOCUMENT_POSTING_PATH = POSTING_DIR_PATH + "\\stemming_";
+        }
+        else{
+            // final posting file path
+            FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_posting.txt";
+            // inverted dictionary file path
+            INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_dictionary.txt";
+            System.out.println(INVERTED_DICTIONARY_FILE_PATH);
+            // document posting path
+            DOCUMENT_POSTING_PATH = POSTING_DIR_PATH + "\\no_stemming_";
+        }
     }
 }

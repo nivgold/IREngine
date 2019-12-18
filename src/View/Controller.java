@@ -83,4 +83,16 @@ public class Controller {
             this.manager.startProcess();
         }
     }
+
+    public void stemmingAction(ActionEvent actionEvent){
+        if (stemming_CheckBox.isSelected()){
+            // with stemming
+            ConfigReader.setStemming(true);
+        }
+        else{
+            // without stemming
+            ConfigReader.setStemming(false);
+        }
+        System.out.println(ConfigReader.STEMMING);
+    }
 }

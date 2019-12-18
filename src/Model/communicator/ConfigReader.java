@@ -12,11 +12,11 @@ public class ConfigReader {
     public static String CORPUS_DIR_PATH;
     public static String POSTING_DIR_PATH;
 
-
     public static String BATCH_PRE_POSTING_DIR_PATH;
     public static String FINAL_POSTING_FILE_PATH;
     public static String INVERTED_DICTIONARY_FILE_PATH;
     public static String STOP_WORDS_FILE_PATH;
+    public static boolean STEMMING = false;
 
     public static void loadConfiguration(){
         try{
@@ -29,12 +29,22 @@ public class ConfigReader {
 
             // temp directory for batch pre-posting files
             BATCH_PRE_POSTING_DIR_PATH = POSTING_DIR_PATH +"\\temp";
-            // final posting file path
-            FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\posting.txt";
-            // inverted dictionary file path
-            INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\dictionary.txt";
+
+            if (STEMMING){
+                // final posting file path
+                FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\stemming_posting.txt";
+                // inverted dictionary file path
+                INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\stemming_dictionary.txt";
+            }
+            else{
+                // final posting file path
+                FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_posting.txt";
+                // inverted dictionary file path
+                INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_dictionary.txt";
+            }
+
             // stop words file path
-            STOP_WORDS_FILE_PATH = CORPUS_DIR_PATH + "\\stop_words.txt";
+            STOP_WORDS_FILE_PATH = CORPUS_DIR_PATH + "\\05 stop_words.txt";
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -48,5 +58,8 @@ public class ConfigReader {
     }
     public static void updatePostingPath(String newPostingPath){
         POSTING_DIR_PATH = newPostingPath;
+    }
+    public static void setStemming(boolean stemming){
+        STEMMING = stemming;
     }
 }

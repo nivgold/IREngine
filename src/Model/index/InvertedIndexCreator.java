@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InvertedIndexCreator {
-    private final static String INVERTED_INDEX_DICTIONARY_PATH = ConfigReader.INVERTED_DICTIONARY_PATH;
-    private final static String FINAL_POSTING_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
+    private final static String INVERTED_DICTIONARY_FILE_PATH = ConfigReader.INVERTED_DICTIONARY_FILE_PATH;
+    private final static String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
 
     // TODO: look for a way to minimize the memory consumption when converting the ConcurrentHashMap to regular HashMap
     public static void create(ConcurrentHashMap<String, TermDetails> initialDictionary){
@@ -48,7 +48,7 @@ public class InvertedIndexCreator {
 
     private static void saveToDisk(Map<String, TermDetails> invertedIndexDictionary){
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(FINAL_POSTING_PATH));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(FINAL_POSTING_FILE_PATH));
             String currentLine="";
             int lineNumber = 0;
             while ((currentLine=bufferedReader.readLine()) != null){
@@ -57,7 +57,7 @@ public class InvertedIndexCreator {
                 lineNumber++;
             }
             bufferedReader.close();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(INVERTED_INDEX_DICTIONARY_PATH));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(INVERTED_DICTIONARY_FILE_PATH));
             for (Map.Entry<String, TermDetails> entry : invertedIndexDictionary.entrySet()){
                 String term = entry.getKey();
                 TermDetails termDetails = entry.getValue();

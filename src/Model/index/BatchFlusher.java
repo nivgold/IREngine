@@ -14,7 +14,7 @@ public class BatchFlusher {
     private BufferedWriter bufferedWriter;
 
     public BatchFlusher(String workerID) {
-        this.workerPath = ConfigReader.BATCH_POSTING_FILE_PATH +"\\worker"+workerID;
+        this.workerPath = ConfigReader.BATCH_PRE_POSTING_DIR_PATH +"\\worker"+workerID;
     }
 
     /**

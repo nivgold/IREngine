@@ -31,7 +31,7 @@ public class Worker implements Runnable{
     // the indexer that responsible for writing the per-posting for the batch
     public Indexer indexer;
 
-    private final String DOCUMENT_POSTING_PATH = ConfigReader.FINAL_POSTING_DIRECTORY_PATH;
+    private final String DOCUMENT_POSTING_PATH = ConfigReader.POSTING_DIR_PATH;
 
     public Worker(int workerID, int startIndex, int totalFiles) {
         this.workerID = workerID;
@@ -48,10 +48,10 @@ public class Worker implements Runnable{
         Parse parser;
         for (int i=0; i<BATCH_NUM; i++){
             if (i == BATCH_NUM-1){
-                readFile = new ReadFile(ConfigReader.CORPUS_PATH, startIndex +(batchFilesNum*i), batchFilesNum+filesLeft);
+                readFile = new ReadFile(ConfigReader.CORPUS_DIR_PATH, startIndex +(batchFilesNum*i), batchFilesNum+filesLeft);
             }
             else{
-                readFile = new ReadFile(ConfigReader.CORPUS_PATH, startIndex +(batchFilesNum*i), batchFilesNum);
+                readFile = new ReadFile(ConfigReader.CORPUS_DIR_PATH, startIndex +(batchFilesNum*i), batchFilesNum);
             }
             readFile.run();
             parser = new Parse();

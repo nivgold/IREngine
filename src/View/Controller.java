@@ -7,9 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -22,13 +20,23 @@ public class Controller {
     private Manager manager;
 
     @FXML
+    private Button start_Button;
+    @FXML
     private Button corpus_path_Button;
     @FXML
     private Button posting_path_Button;
     @FXML
+    private Button reset_Button;
+    @FXML
+    private Button show_dictionary_Button;
+    @FXML
+    private Button load_dictionary_Button;
+    @FXML
     private TextField corpus_path_TextField;
     @FXML
     private TextField posting_path_TextField;
+    @FXML
+    private CheckBox stemming_CheckBox;
 
 
 
@@ -61,6 +69,18 @@ public class Controller {
         else{
             postingPath.setValue(selectedDir.getAbsolutePath());
             ConfigReader.updatePostingPath(selectedDir.getAbsolutePath());
+        }
+    }
+
+    public void startAction(ActionEvent actionEvent){
+        if (corpusPath.get().equals("set path") || postingPath.get().equals("set path")){
+            // pop a warning dialog
+            Alert alert = new Alert(Alert.AlertType.WARNING, "not all parameters were set");
+            alert.show();
+        }
+        else{
+            // start process
+            this.manager.startProcess();
         }
     }
 }

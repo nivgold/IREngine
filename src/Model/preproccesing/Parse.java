@@ -50,7 +50,7 @@ public class Parse implements Runnable {
      * loading the 'stop_words' file from the disk
      */
     private void load_stop_words() {
-        String PATH = ConfigReader.STOP_WORDS_PATH;
+        String PATH = ConfigReader.STOP_WORDS_FILE_PATH;
         try {
             FileReader fileReader = new FileReader(PATH);
             BufferedReader bufferedReader = new BufferedReader(fileReader);

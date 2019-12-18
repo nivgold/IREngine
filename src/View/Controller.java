@@ -7,12 +7,18 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.io.*;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class Controller {
     private Stage mainStage;
@@ -109,7 +115,7 @@ public class Controller {
                 File postingDir = new File(ConfigReader.POSTING_DIR_PATH);
                 deleteDirectory(postingDir);
                 postingDir.mkdirs();
-                manager.clearRAM();
+                manager.cleanRAM();
             }
         }
     }
@@ -121,5 +127,49 @@ public class Controller {
                 deleteDirectory(file);
         }
         return directory.delete();
+    }
+
+    public void showDictionaryButton(ActionEvent actionEvent){
+        ConfigReader.loadConfiguration();
+        File dictionary = new File(ConfigReader.INVERTED_DICTIONARY_FILE_PATH);
+        if (!dictionary.exists()){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Found In Posting Path");
+            alert.show();
+        }
+        else{
+
+            // show dictionary
+
+            Stage dialogStage = new Stage();
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            try{
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
+                String currentLine = "";
+                while ((currentLine = bufferedReader.readLine()) != null){
+                    stringBuilder.append(currentLine+"\n");
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("XXX");
+            TableView tableView = new TableView<>();
+            TableColumn<String, String> termValue = new TableColumn<>("Term");
+
+            TableColumn<String, String> corpusTF = new TableColumn<>("TF");
+            tableView.getColumns().add(termValue);
+            tableView.getColumns().add(corpusTF);
+
+
+            scrollPane.setContent(tableView);
+            Scene scene = new Scene(scrollPane, 200, 1000);
+            dialogStage.setScene(scene);
+            dialogStage.show();
+        }
     }
 }

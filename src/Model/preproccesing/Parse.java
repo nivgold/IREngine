@@ -810,13 +810,14 @@ public class Parse{
             if (checkNextWord(" thousand", phrase, document)) {
                 String toAdd = shortFriction(phrase.getValue());
                 addToHashMap(toAdd + "K", document);
+                return;
             }
         }
 
         // number
         String[] numberFriction = phrase.getValue().split(" ");
-        String toAdd = shortFriction(phrase.getValue());
-        if (numberFriction.length < 0)
+        String toAdd = phrase.getValue();
+        if (numberFriction.length < 1)
             toAdd = shortFriction(toAdd);
         addToHashMap(toAdd, document);
     }

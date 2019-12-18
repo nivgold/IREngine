@@ -5,6 +5,7 @@ import Model.index.Indexer;
 import Model.preproccesing.ReadFile;
 
 import java.io.*;
+import java.util.*;
 
 // calling the workers and finally creating the final posting file and inverted index dictionary
 public class Manager {
@@ -45,6 +46,8 @@ public class Manager {
         // all the batch posting were created and now the final indexing can start
         Indexer.createInvertedIndex();
 
+        cleanRAM();
+
         double end = System.nanoTime();
         double total = (end - start)/1000000000.0;
         System.out.println("Total time: "+(total/60)+" mins");
@@ -67,7 +70,25 @@ public class Manager {
 
     }
 
-    public void clearRAM(){
+    public void cleanRAM(){
         Indexer.invertedIndexDictionary.clear();
+    }
+
+    public List<String> getSortedDictionary(){
+        HashSet<String> set = new HashSet<>();
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
+            String currentLine = "";
+            while ((currentLine = bufferedReader.readLine()) != null){
+                set.add(currentLine+"\n");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ArrayList<String> sorted = new ArrayList<>(set);
+        Collections.sort(sorted);
+        return sorted;
     }
 }

@@ -1,39 +1,32 @@
 package Model.preproccesing;
 
-import Model.communicator.ConfigReader;
 import Model.dataTypes.*;
-
-import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-
-// TODO add 'Dollars' word before number
-// TODO use 3 digit friction on all numbers
-// TODO negative numbers
-// TODO enforce the capital letter rule if possible - (check if the dictionary already has a different from of the same word)
-// TODO add Stemming to words ++++++++++++
-// TODO 'load_stopwords' needs to be global
-// TODO use a global map (maybe?) to parse Dates
-public class Parse implements Runnable {
+// parsing each file batch from the ReadFile to a HashMap of String, AllTermDocs
+public class Parse{
     private enum DATE_FORMAT {
         Year, Month
     }
-
     public HashSet<Document> documents;
     private HashMap<String, AllTermDocs> termDocsMap;
     private Set<String> docs;
     private Set<String> stop_words;
-    private double total;
 
-    public Parse() {
+    public Parse(Set<String> docs, Set<String> stop_words) {
+        this.docs = docs;
         this.documents = new HashSet<>();
         this.termDocsMap = new HashMap<>();
         this.stop_words = new HashSet<>();
-        load_stop_words();
+        this.stop_words = stop_words;
     }
 
+    /**
+     * sorting the parsed term and returning it
+     * @return batch term-sorted list of: String, AllTermDocs
+     */
     public ArrayList<Map.Entry<String, AllTermDocs>> getTermDocsMap() {
         Set entrySet = termDocsMap.entrySet();
         ArrayList<Map.Entry<String, AllTermDocs>> sortedTerms = new ArrayList<>(entrySet);
@@ -47,54 +40,10 @@ public class Parse implements Runnable {
     }
 
     /**
-     * loading the 'stop_words' file from the disk
-     */
-    private void load_stop_words() {
-        String PATH = ConfigReader.STOP_WORDS_FILE_PATH;
-        try {
-            FileReader fileReader = new FileReader(PATH);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String currentLine;
-            while ((currentLine = bufferedReader.readLine()) != null) {
-                this.stop_words.add(currentLine);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * returns the total time took to parse all the documents in 'docs'
-     *
-     * @return double that indicates the time took for the parser to parse the batch of docs
-     */
-    public double getTotal() {
-        return total;
-    }
-
-    /**
-     * returns the set of the docs the Parser needs to parse
-     *
-     * @return set of docs
-     */
-    public Set<String> getDocs() {
-        return docs;
-    }
-
-    @Override
-    public void run() {
-        parseDocsBatch(this.docs);
-    }
-
-    /**
      * iterating over the docs and parse each one of them
-     *
-     * @param docs
      */
-    public void parseDocsBatch(Set<String> docs) {
-        Iterator<String> iterator = docs.iterator();
+    public void parseBatch() {
+        Iterator<String> iterator = this.docs.iterator();
         while (iterator.hasNext()) {
             String doc = iterator.next();
             iterator.remove();
@@ -104,8 +53,7 @@ public class Parse implements Runnable {
 
     /**
      * parsing the given document
-     *
-     * @param doc
+     * @param doc retrieved doc content from ReadFile
      */
     private void parseDoc(String doc) {
         Document document = extractTextFromDoc(doc);
@@ -117,8 +65,7 @@ public class Parse implements Runnable {
 
     /**
      * finding all the numbers pattern and parsing them
-     *
-     * @param document
+     * @param document current document that being parsed
      */
     private void numbers(Document document) {
         String docText = document.getText();
@@ -153,13 +100,11 @@ public class Parse implements Runnable {
 
     /**
      * parsing the given signed number according to the document that he is in
-     *
-     * @param phrase   a signed number
+     * @param phrase a signed number
      * @param document containing the the given phrase
      */
-    //TODO think about adding this case  ->R17,432,000
     private void signedNumbers(Phrase phrase, Document document) {
-                /*
+        /*
         checking if it's a Signed Dollar rule:
         the phrase has 'm' or 'bn' linked right after him
         or has '$' linked right before him
@@ -200,8 +145,7 @@ public class Parse implements Runnable {
 
     /**
      * tryParse a signed weight number
-     *
-     * @param phrase   a signed number
+     * @param phrase a signed number
      * @param document containing the given phrase
      * @return True if the given phrase is a signed weight number and false if not
      */
@@ -233,14 +177,11 @@ public class Parse implements Runnable {
 
     /**
      * tryParse a signed distance number
-     *
-     * @param phrase   a signed number
+     * @param phrase a signed number
      * @param document containing the given phrase
      * @return True if the given phrase is a signed distance number and false if not
      */
     private boolean tryParseSignedDistance(Phrase phrase, Document document) {
-        //TODO check if its a 'number friction' form
-
         // checking if the phrase has a 'km' linked right after him
         if (checkNextWord("km", phrase, document)) {
             addToHashMap(phrase.getValue() + " KM", document);
@@ -251,8 +192,7 @@ public class Parse implements Runnable {
 
     /**
      * parse a signed dollar number
-     *
-     * @param phrase   a signed number
+     * @param phrase a signed number
      * @param document containing the given phrase
      */
     private void parseSignedDollars(Phrase phrase, Document document) {
@@ -292,8 +232,7 @@ public class Parse implements Runnable {
 
     /**
      * checks if phrase answers any of the conditions to be a saved as dollar number
-     *
-     * @param phrase   a signed number
+     * @param phrase a signed number
      * @param document containing the given phrase
      * @return True if the given number is a signed dollar number and false if not
      */
@@ -313,8 +252,7 @@ public class Parse implements Runnable {
 
     /**
      * parsing the given unsigned-number according to the document that he is in
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      */
     private void nonSignedNumbers(Phrase phrase, Document document) {
@@ -362,8 +300,7 @@ public class Parse implements Runnable {
 
     /**
      * tryParse an unsigned weight number
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      * @return True if the given phrase is an unsigned weight number, false if not
      */
@@ -380,6 +317,8 @@ public class Parse implements Runnable {
             }
             return true;
         }
+
+        // checking if the phrase has gram or gr linked after it
         if (checkNextWord(" gram", phrase, document) || checkNextWord(" gr", phrase, document)) {
             number = number / 1000;
             addToHashMap(shortFriction(number + "") + " KG", document);
@@ -390,8 +329,7 @@ public class Parse implements Runnable {
 
     /**
      * tryParse an unsigned distance number
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      * @return True if the given phrase is an unsigned distance number, false if not
      */
@@ -425,18 +363,20 @@ public class Parse implements Runnable {
 
     /**
      * tryParse a "Between number and number" rule
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      * @return True if the given phrase is the first number in a "Between number and number" rule, false if not
      */
     private boolean tryParseBetweenNumberAndNumber(Phrase phrase, Document document) {
         if (checkPreviousWord("between ", phrase, document)) {
             if (checkNextWord(" and", phrase, document)) {
+
                 String docText = document.getText();
                 int docTextLength = document.getTextLength();
                 int endPhraseIndex = phrase.getEndIndex();
                 int endWordIndex = document.getText().indexOf(' ', endPhraseIndex + 5);
+
+                // if has space in the next characters
                 if (endWordIndex != -1) {
                     if (checkValidForwardIndex(endPhraseIndex + 4, (endPhraseIndex + 4) - 1 - endPhraseIndex, docTextLength)) {
                         String candidateNumber = docText.substring(endPhraseIndex + 5, endWordIndex);
@@ -457,13 +397,13 @@ public class Parse implements Runnable {
 
     /**
      * tryParse dates rule
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      * @return True if the given phrase qualify as a date, false if not
      */
     private boolean tryParseDates(Phrase phrase, Document document) {
         String[] numberFriction = phrase.getValue().split(" ");
+        // if its a "number friction" its NOT a date
         if (numberFriction.length > 1)
             return false;
         if (numberFriction[0].contains("."))
@@ -484,9 +424,8 @@ public class Parse implements Runnable {
 
     /**
      * tryParse date rule while month is written in its shorten version
-     *
-     * @param phrase      an unsigned number
-     * @param document    containing the given phrase
+     * @param phrase an unsigned number
+     * @param document containing the given phrase
      * @param date_format enum that specify whether its a day/year rule
      * @return true if the given phrase qualify as a date and month part was written in its shorten version, false if not
      */
@@ -494,6 +433,7 @@ public class Parse implements Runnable {
         String day = phrase.getValue();
         if (day.length() < 2)
             day = "0" + day;
+
         String docText = document.getText();
         int docTextLength = document.getTextLength();
         int startPhraseIndex = phrase.getStartIndex();
@@ -502,8 +442,11 @@ public class Parse implements Runnable {
         int endNextIndex = endPhraseIndex + 4;
         int startPrevIndex = startPhraseIndex - 4;
         int endPrevIndex = startPhraseIndex - 1;
+
+        // checks if next word is short version of month name
         if (checkValidForwardIndex(endPhraseIndex, 3, docTextLength)) {
             String candidateMonth = docText.substring(startNextIndex, endNextIndex);
+            // convertedMonth is a number that represent a month name
             String convertedMonth = convertShortMonth(candidateMonth);
             if (convertedMonth != null) {
                 if (date_format == DATE_FORMAT.Year)
@@ -513,9 +456,11 @@ public class Parse implements Runnable {
                 return true;
             }
         }
+        // checks if previous word is short version of month name
         if (checkValidBackwardIndex(startPhraseIndex, 4)) {
             String candidateMonth = docText.substring(startPrevIndex, endPrevIndex);
             String convertedMonth = convertShortMonth(candidateMonth);
+            // convertedMonth is a number that represent a month name
             if (convertedMonth != null) {
                 if (date_format == DATE_FORMAT.Year)
                     addToHashMap(day + "-" + convertedMonth, document);
@@ -529,7 +474,6 @@ public class Parse implements Runnable {
 
     /**
      * Converts month shorten version to its numeric value
-     *
      * @param candidateMonth string with length of 3
      * @return numeric value of a month if candidateMonth is a shorten version of a month, null otherwise
      */
@@ -576,9 +520,8 @@ public class Parse implements Runnable {
 
     /**
      * tryParse date rule while month is written in its full version
-     *
-     * @param phrase      an unsigned number
-     * @param document    containing the given phrase
+     * @param phrase an unsigned number
+     * @param document containing the given phrase
      * @param date_format enum that specify whether its a day/year rule
      * @return true if the given phrase qualify as a date and month part was written in its full version, false if not
      */
@@ -587,7 +530,6 @@ public class Parse implements Runnable {
         if (day.length() < 2)
             day = "0" + day;
 
-        int startIndex = 0;
         String actualMonth = null;
         if (checkNextWord(" january", phrase, document) || checkPreviousWord("january ", phrase, document)) {
             actualMonth = "01";
@@ -630,15 +572,13 @@ public class Parse implements Runnable {
         if (date_format == DATE_FORMAT.Year)
             addToHashMap(day + "-" + actualMonth, document);
         else
-            //TODO change start index to be correct
             addToHashMap(actualMonth + "-" + day, document);
         return true;
     }
 
     /**
      * parse percentage number
-     *
-     * @param phrase   a number
+     * @param phrase a number
      * @param document containing the given phrase
      */
     private void parsePercentage(Phrase phrase, Document document) {
@@ -653,8 +593,7 @@ public class Parse implements Runnable {
 
     /**
      * checks if phrase answers any of the conditions to be a saved as percentage number
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      * @return True if the given phrase is an unsigned percentage number, false if not
      */
@@ -673,9 +612,8 @@ public class Parse implements Runnable {
 
     /**
      * checks if the given string appears in the document after the given phrase
-     *
      * @param nextWord string candidate that might appear after phrase in the document
-     * @param phrase   string
+     * @param phrase string
      * @param document containing the given phrase and nextWord
      * @return True if nextWord appears in the document after the given phrase, false if not
      */
@@ -695,9 +633,8 @@ public class Parse implements Runnable {
 
     /**
      * checks if the given string appears in the document before the given phrase
-     *
      * @param prevWord string candidate that might appear before phrase in the document
-     * @param phrase   string
+     * @param phrase string
      * @param document containing the given phrase and prevWord
      * @return True if prevWord appears in the document before the given phrase, false if not
      */
@@ -716,8 +653,7 @@ public class Parse implements Runnable {
 
     /**
      * parse an unsigned dollar number
-     *
-     * @param phrase   a unsigned number
+     * @param phrase a unsigned number
      * @param document containing the given phrase
      */
     private void parseNonSignedDollars(Phrase phrase, Document document) {
@@ -742,13 +678,12 @@ public class Parse implements Runnable {
 
     /**
      * handle below million unsigned dollars numbers
-     *
-     * @param phrase         an unsigned number
-     * @param document       containing the given phrase
-     * @param docText        document text
-     * @param docTextLength  document text length
+     * @param phrase an unsigned number
+     * @param document containing the given phrase
+     * @param docText document text
+     * @param docTextLength document text length
      * @param numberEndIndex phrase end index
-     * @param number         double representing the phrase number
+     * @param number double representing the phrase number
      */
     private void handleBelowMillionNonSignedDollars(Phrase phrase, Document document, String docText, int docTextLength, int numberEndIndex, double number) {
         if (checkValidForwardIndex(numberEndIndex, 7, docTextLength)) {
@@ -772,8 +707,7 @@ public class Parse implements Runnable {
 
     /**
      * checks if phrase answers any of the conditions to be a saved as dollar number
-     *
-     * @param phrase   an unsigned number
+     * @param phrase an unsigned number
      * @param document containing the given phrase
      * @return True if the given phrase is an unsigned dollar number, false if not
      */
@@ -793,28 +727,33 @@ public class Parse implements Runnable {
 
     /**
      * parsing the given phrase according to missing-units rule
-     *
-     * @param phrase   unsigned missing-unit number
+     * @param phrase unsigned missing-unit number
      * @param document containing the given phrase
      */
     private void parseMissingUnits(Phrase phrase, Document document) {
         String[] numberFriction = phrase.getValue().split(" ");
         double number = Double.valueOf(numberFriction[0]);
+        // below thousand
         if (number < 1000) {
             parseMissingUnitsBelowThousand(phrase, document);
-        } else if (number >= 1000 && number < 1000000) {
+        }
+        // thousands
+        else if (number >= 1000 && number < 1000000) {
             parseMissingUnitThousand(phrase, document);
-        } else if (number >= 1000000 && number < 1000000000) {
+        }
+        // millions
+        else if (number >= 1000000 && number < 1000000000) {
             parseMissingUnitMillion(phrase, document);
-        } else {
+        }
+        // billions
+        else {
             parseMissingUnitBillion(phrase, document);
         }
     }
 
     /**
      * parsing the given phrase as a "above billion missing-units"
-     *
-     * @param phrase   an unsigned missing-unit number
+     * @param phrase an unsigned missing-unit number
      * @param document containing the given phrase
      */
     private void parseMissingUnitBillion(Phrase phrase, Document document) {
@@ -826,8 +765,7 @@ public class Parse implements Runnable {
 
     /**
      * parsing the given phrase as a "between billion and million missing-units"
-     *
-     * @param phrase   an unsigned missing-unit number
+     * @param phrase an unsigned missing-unit number
      * @param document containing the given phrase
      */
     private void parseMissingUnitMillion(Phrase phrase, Document document) {
@@ -839,8 +777,7 @@ public class Parse implements Runnable {
 
     /**
      * parsing the given phrase as a "between million and thousand missing-units"
-     *
-     * @param phrase   an unsigned missing-unit number
+     * @param phrase an unsigned missing-unit number
      * @param document containing the given phrase
      */
     private void parseMissingUnitThousand(Phrase phrase, Document document) {
@@ -850,13 +787,10 @@ public class Parse implements Runnable {
         addToHashMap(shortFriction(number + "") + "K", document);
     }
 
-    // TODO use the checkNextWord function
-
     /**
      * parsing the given phrase as a "below thousand missing-units"
      * will check if and number has thousand/million/billion linked to them and act accordingly
-     *
-     * @param phrase   an unsigned missing-unit number
+     * @param phrase an unsigned missing-unit number
      * @param document containing the given phrase
      */
     private void parseMissingUnitsBelowThousand(Phrase phrase, Document document) {
@@ -889,7 +823,6 @@ public class Parse implements Runnable {
 
     /**
      * takes a string that represents a number and correct it - 3 digits after the decimal point
-     *
      * @param value string that represents a number
      * @return string that contains the fixed number
      */
@@ -915,12 +848,23 @@ public class Parse implements Runnable {
         return value;
     }
 
-    //TODO NIV DO IT
+    /**
+     * check if can go k characters afterwards from end index
+     * @param end end index of the checked word
+     * @param k number of characters that being checked
+     * @param endOfText the last valid index of the document text
+     * @return true if end+k dont go above index endOfText and false otherwise
+     */
     private boolean checkValidForwardIndex(int end, int k, int endOfText) {
         return end + k < endOfText;
     }
 
-    //TODO NIV DO IT
+    /**
+     * check if can go k characters backward from start index
+     * @param start start index of the checked word
+     * @param k number of characters that being checked
+     * @return true if start-k dont go below index 0 and false otherwise
+     */
     private boolean checkValidBackwardIndex(int start, int k) {
         return start - k >= 0;
     }
@@ -939,28 +883,40 @@ public class Parse implements Runnable {
         return false;
     }
 
-    //TODO NIV DO IT
+    /**
+     * parse a regular word and entity rules
+     * @param document current document that being parsed
+     */
     private void words(Document document) {
         Pattern pattern = Pattern.compile("(?<=(\\W))[a-zA-Z]+(?=(\\W))");
         Matcher matcher = pattern.matcher(document.getText());
         while (matcher.find()) {
             Phrase currentPhrase = new Phrase(matcher.start(), matcher.end(), matcher.group());
+            // parsing the single word that was matched
             parseSingleWord(currentPhrase, document);
             if (isFirstCharCapital(currentPhrase)) {
+                // maybe starting an entity
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(currentPhrase.getValue());
                 while (matcher.find()) {
                     Phrase nextPhrase = new Phrase(matcher.start(), matcher.end(), matcher.group());
+                    // parsing the single word that was matched
                     parseSingleWord(nextPhrase, document);
                     if (isFirstCharCapital(nextPhrase)) {
+                        // maybe continuing the entity
                         int endEntityIndex = currentPhrase.getStartIndex() + stringBuilder.length();
+                        // the next word is right after
                         if (endEntityIndex + 1 == nextPhrase.getStartIndex()) {
                             stringBuilder.append(" " + nextPhrase.getValue());
-                        } else {
+                        }
+                        // the next word is not right after
+                        else {
+                            // if the entity is not one term long, it is an entity
                             if (currentPhrase.getValue().length() != stringBuilder.toString().length()) {
                                 Phrase entity = new Phrase(currentPhrase.getStartIndex(), currentPhrase.getStartIndex() + stringBuilder.length(), stringBuilder.toString());
                                 addToHashMap(entity.getValue().toUpperCase() + " ", document);
                             }
+                            // starting the entity searching with nextPhrase to be the first word of the entity
                             stringBuilder = new StringBuilder();
                             stringBuilder.append(nextPhrase.getValue());
                             currentPhrase = nextPhrase;
@@ -969,6 +925,7 @@ public class Parse implements Runnable {
                         break;
                     }
                 }
+                // if the entity is not one term long, it is an entity
                 if (currentPhrase.getValue().length() != stringBuilder.toString().length()) {
                     Phrase entity = new Phrase(currentPhrase.getStartIndex(), currentPhrase.getStartIndex() + stringBuilder.length(), stringBuilder.toString());
                     addToHashMap(entity.getValue().toUpperCase() + " ", document);
@@ -1011,7 +968,7 @@ public class Parse implements Runnable {
     /**
      * parse a wordMakaf rule(for example apples-oranges)
      *
-     * @param document
+     * @param document current document that being parsed
      */
     private void wordMakaf(Document document) {
         Pattern pattern = Pattern.compile("(([a-zA-Z]+)|([0-9]+(,[0-9]{3})*((\\.[0-9]+)?)))(-(([a-zA-Z]+)|([0-9]+(,[0-9]{3})*((\\.[0-9]+)?))))+");
@@ -1032,6 +989,7 @@ public class Parse implements Runnable {
      */
     private Document extractTextFromDoc(String doc) {
         StringBuilder stringBuilder = new StringBuilder();
+        // extracting text from doc
         Pattern parseTextsFromDocRegex = Pattern.compile("(?<=(<TEXT>))(.+?)(?=(</TEXT>))", Pattern.DOTALL);
         Matcher matcher = parseTextsFromDocRegex.matcher(doc);
         stringBuilder.append(" ");
@@ -1040,12 +998,12 @@ public class Parse implements Runnable {
             stringBuilder.append(" ");
         }
         String docText = stringBuilder.toString();
+        // extracting DOCNO from doc
         Pattern parseDOCNOFromDoc = Pattern.compile("(?<=(<DOCNO>))(.+?)(?=(</DOCNO>))");
         matcher = parseDOCNOFromDoc.matcher(doc);
         String docNO = "";
         if (matcher.find())
             docNO = matcher.group();
-        //TODO maybe omit the . and ,
         docText = docText.replaceAll("\\s+", " ");
         return new Document(docNO, docText);
     }
@@ -1059,22 +1017,30 @@ public class Parse implements Runnable {
      * @param document containing the value given
      */
     private void addToHashMap(String value, Document document) {
+        // if already exist with lower case
         if (termDocsMap.containsKey(value.toLowerCase())) {
             AllTermDocs allTermDocs = termDocsMap.get(value.toLowerCase());
             allTermDocs.addTermDetails(document.getDocNo());
             document.addTerm(value.toLowerCase());
-        } else if (termDocsMap.containsKey(value.toUpperCase())) {
+        }
+        // already exist with upper case
+        else if (termDocsMap.containsKey(value.toUpperCase())) {
+            // current term is also upper case
             if (value.equals(value.toUpperCase())) {
                 AllTermDocs allTermDocs = termDocsMap.get(value);
                 allTermDocs.addTermDetails(document.getDocNo());
                 document.addTerm(value);
-            } else {
+            }
+            // current term is lower case
+            else {
                 AllTermDocs allTermDocs = termDocsMap.remove(value.toUpperCase());
                 allTermDocs.addTermDetails(document.getDocNo());
                 termDocsMap.put(value, allTermDocs);
                 document.addTerm(value);
             }
-        } else {
+        }
+        // term not exist in the HashMap
+        else {
             AllTermDocs allTermDocs = new AllTermDocs(document.getDocNo());
             termDocsMap.put(value, allTermDocs);
             document.addTerm(value);

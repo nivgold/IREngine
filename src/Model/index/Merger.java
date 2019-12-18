@@ -6,11 +6,15 @@ import Model.dataTypes.TermDetails;
 import java.io.*;
 import java.util.Map;
 
-//TODO try adding with StringBuilder and NOT ArrayList
+//TODO maybe optimize the merger with all lowerCase terms
+
+// creating the final posting file
 public class Merger {
-    private static String BATCH_PRE_POSTING_DIR_PATH = ConfigReader.BATCH_PRE_POSTING_DIR_PATH;
-    private static String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
-    private static int filesAmount = 180;
+    private static final int WORKER_NUM = ConfigReader.WORKER_NUM;
+    private static final int WORKER_BATCH_NUM = ConfigReader.WORKER_BATCH_NUM;
+    private static final String BATCH_PRE_POSTING_DIR_PATH = ConfigReader.BATCH_PRE_POSTING_DIR_PATH;
+    private static final String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
+    private static final int filesAmount = WORKER_BATCH_NUM*WORKER_NUM;
     private static BufferedReader[] bufferedReaders = new BufferedReader[filesAmount];
     private static String[] currentLines = new String[filesAmount];
 
@@ -18,8 +22,8 @@ public class Merger {
     public static void merge(Map<String, TermDetails> invertedIndexDictionary){
         try {
             int k = 0;
-            for (int i = 1; i <= 5; i++) {
-                for (int j = 1; j <= 36; j++) {
+            for (int i = 1; i <= WORKER_NUM; i++) {
+                for (int j = 1; j <= WORKER_BATCH_NUM; j++) {
                     bufferedReaders[k] = new BufferedReader(new FileReader(BATCH_PRE_POSTING_DIR_PATH + "\\worker" + i + "_batch" + j+".txt"));
                     k++;
                 }

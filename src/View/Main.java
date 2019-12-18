@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public class Main extends Application {
 
-
     @Override
     public void start(Stage primaryStage) throws Exception{
         Manager manager = new Manager();
@@ -30,18 +29,7 @@ public class Main extends Application {
         controller.initialize(primaryStage, manager);
         setStageCloseEvent(primaryStage, manager);
 
-
         primaryStage.show();
-        //Parent root = FXMLLoader.load(getClass().getResource("../View/sample.fxml"));
-        //primaryStage.setTitle("Hello World");
-        //primaryStage.setScene(new Scene(root, 600, 800));
-        //primaryStage.show();
-
-        //controller.initialize(primaryStage);
-
-
-
-        //setStageCloseEvent(primaryStage, manager);
     }
 
 

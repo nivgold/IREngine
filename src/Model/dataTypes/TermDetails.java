@@ -1,5 +1,6 @@
 package Model.dataTypes;
 
+// data structure that holds the data in the inverted index dictionary
 public class TermDetails {
     private int corpusTF;
     private int df;
@@ -18,14 +19,6 @@ public class TermDetails {
         this.corpusTF += tf;
     }
 
-    public void setCorpusTF(int corpusTF) {
-        this.corpusTF = corpusTF;
-    }
-
-    public void setDf(int df) {
-        this.df = df;
-    }
-
     public void setPostingPointer(int postingPointer) {
         this.postingPointer = postingPointer;
     }
@@ -34,7 +27,7 @@ public class TermDetails {
         return corpusTF;
     }
 
-    public int getDf() {
+    public int getDF() {
         return df;
     }
 

@@ -6,8 +6,7 @@ import Model.preproccesing.ReadFile;
 
 import java.io.*;
 
-
-//TODO maybe optimize the merger with all lowerCase terms
+// calling the workers and finally creating the final posting file and inverted index dictionary
 public class Manager {
     private int CORPUS_FILE_NUM;
     private int WORKERS_NUM;
@@ -15,6 +14,8 @@ public class Manager {
     private int DOCS_LEFT;
 
     public void startProcess() {
+        double start = System.nanoTime();
+
         // loading config
         ConfigReader.loadConfiguration();
 
@@ -43,6 +44,10 @@ public class Manager {
 
         // all the batch posting were created and now the final indexing can start
         Indexer.createInvertedIndex();
+
+        double end = System.nanoTime();
+        double total = (end - start)/1000000000.0;
+        System.out.println("Total time: "+(total/60)+" mins");
     }
 
     private void initialize(){
@@ -52,6 +57,7 @@ public class Manager {
         WORKERS_NUM = ConfigReader.WORKER_NUM;
         DOCS_PER_WORKER = CORPUS_FILE_NUM/WORKERS_NUM;
         DOCS_LEFT = CORPUS_FILE_NUM - WORKERS_NUM*DOCS_PER_WORKER;
+
         // create temp dir
         File tempDir = new File(ConfigReader.BATCH_PRE_POSTING_DIR_PATH);
         tempDir.mkdirs();

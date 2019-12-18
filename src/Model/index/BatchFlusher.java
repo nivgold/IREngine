@@ -6,11 +6,11 @@ import Model.dataTypes.AllTermDocs;
 import java.io.*;
 import java.util.*;
 
+// data structure that responsible for writing each batch data to disk
 public class BatchFlusher {
     // the path for writing the each worker's batch pre-posting file
     private String workerPath;
 
-    //
     private BufferedWriter bufferedWriter;
 
     public BatchFlusher(String workerID) {

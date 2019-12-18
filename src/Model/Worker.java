@@ -6,12 +6,12 @@ import Model.index.Indexer;
 import Model.preproccesing.Parse;
 import Model.preproccesing.ReadFile;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
+// handling the concurrent batch indexing from reading corpus files to inverted index
 public class Worker implements Runnable{
     // number of batches the worker will do
     private final int BATCH_NUM = ConfigReader.WORKER_BATCH_NUM;
@@ -46,6 +46,7 @@ public class Worker implements Runnable{
         double start = System.nanoTime();
         ReadFile readFile;
         Parse parser;
+        Set<String> stopWords = loadStopWords();
         for (int i=0; i<BATCH_NUM; i++){
             if (i == BATCH_NUM-1){
                 readFile = new ReadFile(ConfigReader.CORPUS_DIR_PATH, startIndex +(batchFilesNum*i), batchFilesNum+filesLeft);
@@ -53,9 +54,9 @@ public class Worker implements Runnable{
             else{
                 readFile = new ReadFile(ConfigReader.CORPUS_DIR_PATH, startIndex +(batchFilesNum*i), batchFilesNum);
             }
-            readFile.run();
-            parser = new Parse();
-            parser.parseDocsBatch(readFile.getResult());
+            readFile.read();
+            parser = new Parse(readFile.getResult(), stopWords);
+            parser.parseBatch();
 
             // write batch of documents to disk
             saveDocsToDisk(parser.documents, i);
@@ -76,11 +77,32 @@ public class Worker implements Runnable{
             Iterator<Document> iterator = documents.iterator();
             while (iterator.hasNext()) {
                 Document document = iterator.next();
-                bufferedWriter.write(document.getDocNo() + ";" + document.getMaxTF() + ";" + document.uniqueTerms() + ";" + document.getTextLength());
+                iterator.remove();
+                bufferedWriter.write(document.toString());
                 bufferedWriter.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * loading the 'stop_words' file from the disk
+     */
+    private Set<String> loadStopWords(){
+        Set<String> stopWords = new HashSet<>();
+        try {
+            FileReader fileReader = new FileReader(ConfigReader.STOP_WORDS_FILE_PATH);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String currentLine;
+            while ((currentLine = bufferedReader.readLine()) != null) {
+                stopWords.add(currentLine);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stopWords;
     }
 }

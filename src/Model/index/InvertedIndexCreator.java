@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// creating the final updated dictionary and save him to disk
 public class InvertedIndexCreator {
     private final static String INVERTED_DICTIONARY_FILE_PATH = ConfigReader.INVERTED_DICTIONARY_FILE_PATH;
     private final static String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
@@ -25,13 +26,13 @@ public class InvertedIndexCreator {
                 if (term.equals(term.toUpperCase()) && !term.toUpperCase().equals(term.toLowerCase())){
                     TermDetails removedtermDetails = invertedIndexDictionary.get(term);
                     iterator.remove();
-                    invertedIndexDictionary.get(term.toLowerCase()).addDF(removedtermDetails.getDf());
+                    invertedIndexDictionary.get(term.toLowerCase()).addDF(removedtermDetails.getDF());
                 }
             }
 
             // entity rule
             if (term.endsWith(" ")){
-                if (invertedIndexDictionary.get(term).getDf()<2){
+                if (invertedIndexDictionary.get(term).getDF()<2){
                     iterator.remove();
                 }
             }

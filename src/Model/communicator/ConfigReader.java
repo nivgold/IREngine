@@ -24,14 +24,6 @@ public class ConfigReader {
             FileInputStream inputStream = new FileInputStream(CONFIG_PATH);
             properties.load(inputStream);
 
-            //InputStream inputStream = ConfigReader.class.getClassLoader().getResourceAsStream(CONFIG_PATH);
-            //if (inputStream != null){
-            //    properties.load(inputStream);
-            //}
-            //else{
-            //    throw new FileNotFoundException("property file "+CONFIG_PATH+" not found");
-            //}
-
             WORKER_NUM = Integer.parseInt(properties.getProperty("WORKER_NUM"));
             WORKER_BATCH_NUM = Integer.parseInt(properties.getProperty("WORKER_BATCH_NUM"));
 

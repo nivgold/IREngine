@@ -2,28 +2,27 @@ package Model.dataTypes;
 
 import java.util.*;
 
+// data structure used in Parser to accumulate the terms and theirs data
 public class AllTermDocs {
-    //private HashMap<String, TermInDocDetails> mapper;
-    private int totalTF;
-    private HashMap<String, Integer> mapper;
+    private int termTFInBatch;
+    private HashMap<String, Integer> docsTFMap;
 
     public AllTermDocs(String docNO) {
-        //this.mapper = new HashMap<>();
-        this.mapper = new HashMap<>();
-        this.totalTF=1;
-        mapper.put(docNO.replace(" ", ""), 1);
+        this.docsTFMap = new HashMap<>();
+        this.termTFInBatch =1;
+        docsTFMap.put(docNO.replace(" ", ""), 1);
     }
     public void addTermDetails(String docNo){
         docNo = docNo.replace(" ", "");
-        this.totalTF++;
-        if (mapper.containsKey(docNo))
-            mapper.put(docNo, mapper.get(docNo) +1);
+        this.termTFInBatch++;
+        if (docsTFMap.containsKey(docNo))
+            docsTFMap.put(docNo, docsTFMap.get(docNo) +1);
         else
-            mapper.put(docNo.replace(" ", ""), 1);
+            docsTFMap.put(docNo.replace(" ", ""), 1);
     }
 
     public ArrayList<Map.Entry<String, Integer>> getSortedDocs(){
-        Set entrySet = this.mapper.entrySet();
+        Set entrySet = this.docsTFMap.entrySet();
         ArrayList<Map.Entry<String, Integer>> sortedDocs = new ArrayList<>(entrySet);
         Collections.sort(sortedDocs, new Comparator<Map.Entry<String, Integer>>() {
             @Override
@@ -35,11 +34,11 @@ public class AllTermDocs {
     }
 
     public int getDF(){
-        return mapper.size();
+        return docsTFMap.size();
     }
 
-    public int getTotalTF() {
-        return totalTF;
+    public int getTermTFInBatch() {
+        return termTFInBatch;
     }
 
     @Override

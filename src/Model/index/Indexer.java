@@ -7,6 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+// getting the batch parsed terms and responsible for 2 things: updating the inverted index dictionary
+// AND calling for BatchFlusher to write to disk
+// also responsible for creating the final dictionary
 public class Indexer {
     // the ID of the worker
     private String workerID;
@@ -46,7 +49,7 @@ public class Indexer {
             String term = entry.getKey();
             // getting the number of docs (df) the term occurred (tf) in the batch
             int df = entry.getValue().getDF();
-            int tf = entry.getValue().getTotalTF();
+            int tf = entry.getValue().getTermTFInBatch();
             // update the inverted index dictionary with the term and his details
             updateTerm(term, df, tf);
         }

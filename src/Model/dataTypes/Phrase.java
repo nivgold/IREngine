@@ -1,5 +1,6 @@
 package Model.dataTypes;
 
+// data structure that hold a specific term in a batch
 public class Phrase {
     private int startIndex;
     private int endIndex;
@@ -21,14 +22,6 @@ public class Phrase {
 
     public String getValue() {
         return value;
-    }
-
-    public void setStartIndex(int startIndex) {
-        this.startIndex = startIndex;
-    }
-
-    public void setEndIndex(int endIndex) {
-        this.endIndex = endIndex;
     }
 
     public void setValue(String value) {

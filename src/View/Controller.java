@@ -12,6 +12,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.Optional;
 
 public class Controller {
     private Stage mainStage;
@@ -93,6 +94,32 @@ public class Controller {
             // without stemming
             ConfigReader.setStemming(false);
         }
-        System.out.println(ConfigReader.STEMMING);
+    }
+
+    public void resetAction(ActionEvent actionEvent){
+        if (postingPath.get().equals("set path")){
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Posting Path Not Specified");
+            alert.show();
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Are Your Sure?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                File postingDir = new File(ConfigReader.POSTING_DIR_PATH);
+                deleteDirectory(postingDir);
+                postingDir.mkdirs();
+                manager.clearRAM();
+            }
+        }
+    }
+
+    private boolean deleteDirectory(File directory){
+        File[] files = directory.listFiles();
+        if (files != null){
+            for (File file : files)
+                deleteDirectory(file);
+        }
+        return directory.delete();
     }
 }

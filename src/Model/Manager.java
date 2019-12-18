@@ -66,4 +66,8 @@ public class Manager {
         postingDir.mkdirs();
 
     }
+
+    public void clearRAM(){
+        Indexer.invertedIndexDictionary.clear();
+    }
 }

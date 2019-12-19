@@ -11,7 +11,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-// calling the workers and finally creating the final posting file and inverted index dictionary
+/**
+ * Manager responsible for calling the workers and finally creating the final posting file and inverted index dictionary
+ */
 public class Manager {
     private Map<String, TermDetails> dictionary;
     private int CORPUS_FILE_NUM;

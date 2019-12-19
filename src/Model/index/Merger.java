@@ -6,9 +6,9 @@ import Model.dataTypes.TermDetails;
 import java.io.*;
 import java.util.Map;
 
-//TODO maybe optimize the merger with all lowerCase terms
-
-// creating the final posting file
+/**
+ * responsible for creating the final posting file
+ */
 public class Merger {
     private int WORKER_NUM = ConfigReader.WORKER_NUM;
     private int WORKER_BATCH_NUM = ConfigReader.WORKER_BATCH_NUM;

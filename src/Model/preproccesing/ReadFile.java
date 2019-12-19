@@ -8,7 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// reading the corpus files to the RAM
+/**
+ * ReadFile reading the corpus files to the RAM in batches
+ */
 public class ReadFile{
     private String path;
     private int startOfDocs;

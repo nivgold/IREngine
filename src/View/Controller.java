@@ -20,6 +20,9 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Listening to the ActionEvents that occurring in the GUI
+ */
 public class Controller {
     private Stage mainStage;
     private StringProperty corpusPath = new SimpleStringProperty("set path");

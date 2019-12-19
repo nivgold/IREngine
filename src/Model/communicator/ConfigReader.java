@@ -3,6 +3,9 @@ package Model.communicator;
 import java.io.*;
 import java.util.Properties;
 
+/**
+ * responsible for communicating the objects in the program with the config file
+ */
 public class ConfigReader {
     private final static String CONFIG_PATH = "resources/config.properties";
 

@@ -1,7 +1,5 @@
 package Model.dataTypes;
 
-// data structure that hold a specific term in a batch
-
 /**
  * data structure that holds a specific term in a batch
  */

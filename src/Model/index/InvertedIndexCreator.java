@@ -9,7 +9,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// creating the final updated dictionary and save him to disk
+/**
+ * responsible for creating the final updated inverted index dictionary
+ */
 public class InvertedIndexCreator {
     private String INVERTED_DICTIONARY_FILE_PATH = ConfigReader.INVERTED_DICTIONARY_FILE_PATH;
     private String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;

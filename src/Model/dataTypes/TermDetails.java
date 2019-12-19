@@ -1,7 +1,5 @@
 package Model.dataTypes;
 
-// data structure that holds the data in the inverted index dictionary
-
 /**
  * data structure that holds the data in the inverted index dictionary
  */

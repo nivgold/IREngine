@@ -7,9 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-// getting the batch parsed terms and responsible for 2 things: updating the inverted index dictionary
-// AND calling for BatchFlusher to write to disk
-// also responsible for creating the final dictionary
+/**
+ * getting the batch parsed terms and responsible for 2 things: updating the inverted index dictionary
+ * AND calling for BatchFlusher to write to disk
+ * also responsible for creating the final dictionary
+ */
 public class Indexer {
     // the ID of the worker
     private String workerID;

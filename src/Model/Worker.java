@@ -11,7 +11,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-// handling the concurrent batch indexing from reading corpus files to inverted index
+/**
+ * Worker handling the concurrent batch indexing from reading corpus files to inverted index
+ */
 public class Worker implements Runnable{
     // number of batches the worker will do
     private final int BATCH_NUM = ConfigReader.WORKER_BATCH_NUM;

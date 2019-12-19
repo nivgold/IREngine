@@ -12,7 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-// parsing each file batch from the ReadFile to a HashMap of String, AllTermDocs
+/**
+ * Parse parsing each batch of files from the ReadFile to a HashMap of String, AllTermDocs
+ */
 public class Parse{
     private enum DATE_FORMAT {
         Year, Month
@@ -343,8 +345,6 @@ public class Parse{
      * @return True if the given phrase is an unsigned distance number, false if not
      */
     private boolean tryParseNonSignedDistance(Phrase phrase, Document document) {
-        // TODO use 'shortFriction' method
-
         String numberString = phrase.getValue();
         //check if the phrase has ' kilometer'/' kilometre'/' km' linked after him
         if (checkNextWord(" kilometer", phrase, document) || checkNextWord(" kilometre", phrase, document) || checkNextWord(" km", phrase, document)) {

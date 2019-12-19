@@ -2,8 +2,6 @@ package Model.dataTypes;
 
 import java.util.*;
 
-// data structure to save all document data from the corpus
-
 /**
  * data structure that was created in order to save all document data from the corpus
  */

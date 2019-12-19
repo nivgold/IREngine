@@ -88,6 +88,7 @@ public class Worker implements Runnable{
                 bufferedWriter.write(document.toString());
                 bufferedWriter.newLine();
             }
+            bufferedWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,12 +100,12 @@ public class Worker implements Runnable{
     private Set<String> loadStopWords(){
         Set<String> stopWords = new HashSet<>();
         try {
-            FileReader fileReader = new FileReader(ConfigReader.STOP_WORDS_FILE_PATH);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.STOP_WORDS_FILE_PATH));
             String currentLine;
             while ((currentLine = bufferedReader.readLine()) != null) {
                 stopWords.add(currentLine);
             }
+            bufferedReader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

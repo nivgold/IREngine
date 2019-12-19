@@ -198,6 +198,7 @@ public class Controller {
                     while ((currentLine = bufferedReader.readLine()) != null) {
                         sortedDictionary.add(currentLine);
                     }
+                    bufferedReader.close();
                     Collections.sort(sortedDictionary, new Comparator<String>() {
                         @Override
                         public int compare(String o1, String o2) {

@@ -34,6 +34,7 @@ public class ConfigReader {
             WORKER_NUM = Integer.parseInt(properties.getProperty("WORKER_NUM"));
             WORKER_BATCH_NUM = Integer.parseInt(properties.getProperty("WORKER_BATCH_NUM"));
 
+            inputStream.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

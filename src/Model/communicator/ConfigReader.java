@@ -1,6 +1,5 @@
 package Model.communicator;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.Properties;
 
@@ -56,7 +55,6 @@ public class ConfigReader {
     }
 
     private static void updatePostingDependencies(){
-        System.out.println(STEMMING);
         if (STEMMING){
             // final posting file path
             FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\stemming_posting.txt";
@@ -70,7 +68,6 @@ public class ConfigReader {
             FINAL_POSTING_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_posting.txt";
             // inverted dictionary file path
             INVERTED_DICTIONARY_FILE_PATH = POSTING_DIR_PATH + "\\no_stemming_dictionary.txt";
-            System.out.println(INVERTED_DICTIONARY_FILE_PATH);
             // document posting path
             DOCUMENT_POSTING_PATH = POSTING_DIR_PATH + "\\no_stemming_";
         }

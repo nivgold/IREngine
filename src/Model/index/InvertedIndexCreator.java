@@ -11,11 +11,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 // creating the final updated dictionary and save him to disk
 public class InvertedIndexCreator {
-    private final static String INVERTED_DICTIONARY_FILE_PATH = ConfigReader.INVERTED_DICTIONARY_FILE_PATH;
-    private final static String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
+    private String INVERTED_DICTIONARY_FILE_PATH = ConfigReader.INVERTED_DICTIONARY_FILE_PATH;
+    private String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
+    private Merger merger;
+
+    public InvertedIndexCreator() {
+        this.merger = new Merger();
+    }
 
     // TODO: look for a way to minimize the memory consumption when converting the ConcurrentHashMap to regular HashMap
-    public static Map<String, TermDetails> create(ConcurrentHashMap<String, TermDetails> initialDictionary){
+    public Map<String, TermDetails> create(ConcurrentHashMap<String, TermDetails> initialDictionary){
 
         Map<String, TermDetails> invertedIndexDictionary = new HashMap<>(initialDictionary);
         System.out.println(invertedIndexDictionary.size() +" Terms is in the inverted index dictionary initially");
@@ -42,14 +47,14 @@ public class InvertedIndexCreator {
         System.out.println(invertedIndexDictionary.size() +" Terms is in the inverted index dictionary at the end");
 
         System.out.println("Starting Merger");
-        Merger.merge(invertedIndexDictionary);
+        this.merger.merge(invertedIndexDictionary);
         System.out.println("Merger Finished");
 
         saveToDisk(invertedIndexDictionary);
         return invertedIndexDictionary;
     }
 
-    private static void saveToDisk(Map<String, TermDetails> invertedIndexDictionary){
+    private void saveToDisk(Map<String, TermDetails> invertedIndexDictionary){
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(FINAL_POSTING_FILE_PATH));
             String currentLine="";
@@ -61,6 +66,8 @@ public class InvertedIndexCreator {
                 lineNumber++;
             }
             bufferedReader.close();
+
+            System.out.println(INVERTED_DICTIONARY_FILE_PATH);
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(INVERTED_DICTIONARY_FILE_PATH));
             for (Map.Entry<String, TermDetails> entry : invertedIndexDictionary.entrySet()){
                 String term = entry.getKey();

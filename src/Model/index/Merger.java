@@ -10,16 +10,16 @@ import java.util.Map;
 
 // creating the final posting file
 public class Merger {
-    private static final int WORKER_NUM = ConfigReader.WORKER_NUM;
-    private static final int WORKER_BATCH_NUM = ConfigReader.WORKER_BATCH_NUM;
-    private static final String BATCH_PRE_POSTING_DIR_PATH = ConfigReader.BATCH_PRE_POSTING_DIR_PATH;
-    private static final String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
-    private static final int filesAmount = WORKER_BATCH_NUM*WORKER_NUM;
-    private static BufferedReader[] bufferedReaders = new BufferedReader[filesAmount];
-    private static String[] currentLines = new String[filesAmount];
+    private int WORKER_NUM = ConfigReader.WORKER_NUM;
+    private int WORKER_BATCH_NUM = ConfigReader.WORKER_BATCH_NUM;
+    private String BATCH_PRE_POSTING_DIR_PATH = ConfigReader.BATCH_PRE_POSTING_DIR_PATH;
+    private String FINAL_POSTING_FILE_PATH = ConfigReader.FINAL_POSTING_FILE_PATH;
+    private int filesAmount = WORKER_BATCH_NUM*WORKER_NUM;
+    private BufferedReader[] bufferedReaders = new BufferedReader[filesAmount];
+    private String[] currentLines = new String[filesAmount];
 
 
-    public static void merge(Map<String, TermDetails> invertedIndexDictionary){
+    public void merge(Map<String, TermDetails> invertedIndexDictionary){
         try {
             int k = 0;
             for (int i = 1; i <= WORKER_NUM; i++) {
@@ -28,6 +28,7 @@ public class Merger {
                     k++;
                 }
             }
+            System.out.println(FINAL_POSTING_FILE_PATH);
             // open the output file
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FINAL_POSTING_FILE_PATH),32767);
 
@@ -95,7 +96,7 @@ public class Merger {
 
     }
 
-    private static int checkLowestTerm(){
+    private int checkLowestTerm(){
         int minIndex = -1;
         String minTerm = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
         for (int i=0; i<filesAmount; i++){

@@ -86,6 +86,7 @@ public class Controller {
             alert.show();
         }
         else{
+            this.manager = new Manager();
             // start process
             this.manager.startProcess();
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Files Read: "+ ReadFile.counter.get()+"\nUnique Terms: "+manager.getUniqueTermsNum()+"\nTotal Time: "+manager.getTotalTime());
@@ -117,7 +118,6 @@ public class Controller {
                 File postingDir = new File(ConfigReader.POSTING_DIR_PATH);
                 deleteDirectory(postingDir);
                 postingDir.mkdirs();
-                manager.cleanRAM();
             }
         }
     }
@@ -188,7 +188,7 @@ public class Controller {
             alert.show();
         }
         else{
-            manager.loadDictionary();
+            this.manager.loadDictionary();
         }
     }
 }

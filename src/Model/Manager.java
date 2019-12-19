@@ -3,10 +3,12 @@ package Model;
 import Model.communicator.ConfigReader;
 import Model.dataTypes.TermDetails;
 import Model.index.Indexer;
+import Model.index.InvertedIndexCreator;
 import Model.preproccesing.ReadFile;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 // calling the workers and finally creating the final posting file and inverted index dictionary
 public class Manager {
@@ -44,11 +46,14 @@ public class Manager {
             e.printStackTrace();
         }
 
+        workers = null;
+
         // verify that all the files where read
         System.out.println("number of files read: "+ ReadFile.counter.get());
 
         // all the batch posting were created and now the final indexing can start
-        this.dictionary = Indexer.createInvertedIndex();
+        InvertedIndexCreator indexCreator = new InvertedIndexCreator();
+        this.dictionary = indexCreator.create(Indexer.invertedIndexDictionary);
 
         // clean the up-updated concurrent HashMap
         Indexer.invertedIndexDictionary.clear();
@@ -73,14 +78,14 @@ public class Manager {
         File postingDir = new File(ConfigReader.POSTING_DIR_PATH);
         postingDir.mkdirs();
 
-    }
-
-    public void cleanRAM(){
-        // clean RAM
+        // clean old memory
+        ReadFile.counter.set(0);
+        Indexer.invertedIndexDictionary = new ConcurrentHashMap<>();
     }
 
     public void loadDictionary(){
         try{
+            this.dictionary = null;
             this.dictionary = new HashMap<>();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
             String currentLine = "";
@@ -92,12 +97,12 @@ public class Manager {
                 String postingPointer = dictionaryEntryData[3];
                 this.dictionary.put(term, new TermDetails(corpusTF, df, postingPointer));
             }
+            bufferedReader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(this.dictionary.size());
     }
 
     public int getUniqueTermsNum(){

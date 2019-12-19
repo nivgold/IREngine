@@ -79,12 +79,4 @@ public class Indexer {
             }
         });
     }
-
-    /**
-     * creates final posting file and inverted index dictionary
-     */
-    public static Map<String, TermDetails> createInvertedIndex(){
-        // calling for the InvertedIndexCreator to create the final posting file and inverted index dictionary
-        return InvertedIndexCreator.create(invertedIndexDictionary);
-    }
 }

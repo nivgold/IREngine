@@ -2,7 +2,13 @@ package Model.preproccesing;
 
 import Model.communicator.ConfigReader;
 import Model.dataTypes.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -15,6 +21,7 @@ public class Parse{
     private HashMap<String, AllTermDocs> termDocsMap;
     private Set<String> docs;
     private Set<String> stop_words;
+    public static AtomicInteger docCounter = new AtomicInteger(0);
 
     public Parse(Set<String> docs, Set<String> stop_words) {
         this.docs = docs;
@@ -49,6 +56,7 @@ public class Parse{
             String doc = iterator.next();
             iterator.remove();
             parseDoc(doc);
+            docCounter.addAndGet(1);
         }
     }
 
@@ -117,9 +125,9 @@ public class Parse{
 
         // parse "signed" missing unit numbers. for example: 52bn -> 52B
         else if (checkNextWord("m", phrase, document))
-            addToHashMap(phrase.getValue() + "M", document);
+            addToHashMap(shortFriction(phrase.getValue()) + "M", document);
         else if (checkNextWord("bn", phrase, document))
-            addToHashMap(phrase.getValue() + "B", document);
+            addToHashMap(shortFriction(phrase.getValue()) + "B", document);
         /*
         checking if it's a Signed percentage rule:
         the phrase has '%' linked right after him
@@ -185,7 +193,7 @@ public class Parse{
     private boolean tryParseSignedDistance(Phrase phrase, Document document) {
         // checking if the phrase has a 'km' linked right after him
         if (checkNextWord("km", phrase, document)) {
-            addToHashMap(phrase.getValue() + " KM", document);
+            addToHashMap(shortFriction(phrase.getValue()) + " KM", document);
             return true;
         }
         return false;
@@ -212,7 +220,7 @@ public class Parse{
             if (number == (int) number) {
                 addToHashMap((int) number + " M Dollars", document);
             } else {
-                addToHashMap(number + " M Dollars", document);
+                addToHashMap(shortFriction(number+"") + " M Dollars", document);
             }
         }
         //precondition to check if phrase has a 'm' linked right after him
@@ -225,7 +233,7 @@ public class Parse{
             if (number == (int) number)
                 addToHashMap((int) number + " M Dollars", document);
             else
-                addToHashMap(number + " M Dollars", document);
+                addToHashMap(shortFriction(number+"") + " M Dollars", document);
         } else {
             parseNonSignedDollars(phrase, document);
         }
@@ -340,7 +348,7 @@ public class Parse{
         String numberString = phrase.getValue();
         //check if the phrase has ' kilometer'/' kilometre'/' km' linked after him
         if (checkNextWord(" kilometer", phrase, document) || checkNextWord(" kilometre", phrase, document) || checkNextWord(" km", phrase, document)) {
-            addToHashMap(numberString + " KM", document);
+            addToHashMap(shortFriction(numberString) + " KM", document);
             return true;
         }
         //check if the phrase has ' meter'/' metre' linked after him
@@ -693,17 +701,17 @@ public class Parse{
                 if (number == (int) number)
                     addToHashMap((int) number + " M Dollars", document);
                 else
-                    addToHashMap(number + " M Dollars", document);
+                    addToHashMap(shortFriction(number+"") + " M Dollars", document);
             } else if (candidateMillionOrBillion.equalsIgnoreCase(" billion")) {
                 number = number * 1000;
                 if (number == (int) number)
                     addToHashMap((int) number + " M Dollars", document);
                 else
-                    addToHashMap(number + " M Dollars", document);
+                    addToHashMap(shortFriction(number+"") + " M Dollars", document);
             } else
-                addToHashMap(phrase.getValue() + " Dollars", document);
+                addToHashMap(shortFriction(phrase.getValue()) + " Dollars", document);
         } else
-            addToHashMap(phrase.getValue() + " Dollars", document);
+            addToHashMap(shortFriction(phrase.getValue()) + " Dollars", document);
     }
 
     /**
@@ -818,7 +826,7 @@ public class Parse{
         // number
         String[] numberFriction = phrase.getValue().split(" ");
         String toAdd = phrase.getValue();
-        if (numberFriction.length < 1)
+        if (numberFriction.length < 2)
             toAdd = shortFriction(toAdd);
         addToHashMap(toAdd, document);
     }
@@ -998,17 +1006,33 @@ public class Parse{
     private Document extractTextFromDoc(String doc) {
         StringBuilder stringBuilder = new StringBuilder();
         // extracting text from doc
-        Pattern parseTextsFromDocRegex = Pattern.compile("(?<=(<TEXT>))(.+?)(?=(</TEXT>))", Pattern.DOTALL);
-        Matcher matcher = parseTextsFromDocRegex.matcher(doc);
-        stringBuilder.append(" ");
-        while (matcher.find()) {
-            stringBuilder.append(matcher.group());
-            stringBuilder.append(" ");
+        Reader inputString = new StringReader(doc);
+        BufferedReader bufferedReader = new BufferedReader(inputString);
+        String currentLine = "";
+        StringBuilder docTexts = new StringBuilder();
+        try {
+            while ((currentLine = bufferedReader.readLine()) != null) {
+                if (currentLine.contains("<TEXT>")){
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append(" ");
+                }
+                else if (currentLine.contains("</TEXT>")){
+                    docTexts.append(stringBuilder.toString());
+                }
+                else{
+                    if (!currentLine.startsWith("<")){
+                        stringBuilder.append(currentLine+"\n");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        String docText = stringBuilder.toString();
+        String docText = docTexts.toString();
+
         // extracting DOCNO from doc
         Pattern parseDOCNOFromDoc = Pattern.compile("(?<=(<DOCNO>))(.+?)(?=(</DOCNO>))");
-        matcher = parseDOCNOFromDoc.matcher(doc);
+        Matcher matcher = parseDOCNOFromDoc.matcher(doc);
         String docNO = "";
         if (matcher.find())
             docNO = matcher.group();

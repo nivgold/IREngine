@@ -21,7 +21,7 @@ public class Main extends Application {
         primaryStage.setWidth(600);
         primaryStage.setHeight(450);
         FXMLLoader fxmlLoader = new FXMLLoader();
-        Parent root = fxmlLoader.load(getClass().getResource("/View/sample.fxml").openStream());
+        Parent root = fxmlLoader.load(getClass().getResource("/View/View.fxml").openStream());
         Scene scene = new Scene(root, 600, 450);
         primaryStage.setScene(scene);
 

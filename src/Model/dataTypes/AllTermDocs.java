@@ -2,7 +2,9 @@ package Model.dataTypes;
 
 import java.util.*;
 
-// data structure used in Parser to accumulate the terms and theirs data
+/**
+ * data structure used in Parser to accumulate the terms and theirs data
+ */
 public class AllTermDocs {
     private int termTFInBatch;
     private HashMap<String, Integer> docsTFMap;
@@ -12,6 +14,11 @@ public class AllTermDocs {
         this.termTFInBatch =1;
         docsTFMap.put(docNO.replace(" ", ""), 1);
     }
+
+    /**
+     * updates the tf associated with the docNo
+     * @param docNo new document that contains the term
+     */
     public void addTermDetails(String docNo){
         docNo = docNo.replace(" ", "");
         this.termTFInBatch++;
@@ -21,6 +28,10 @@ public class AllTermDocs {
             docsTFMap.put(docNo.replace(" ", ""), 1);
     }
 
+    /**
+     * sorting all the term's docs and their associated tf
+     * @return doc-sorted list of: doc, doc-tf
+     */
     public ArrayList<Map.Entry<String, Integer>> getSortedDocs(){
         Set entrySet = this.docsTFMap.entrySet();
         ArrayList<Map.Entry<String, Integer>> sortedDocs = new ArrayList<>(entrySet);
@@ -33,6 +44,10 @@ public class AllTermDocs {
         return sortedDocs;
     }
 
+    /**
+     *
+     * @return term
+     */
     public int getDF(){
         return docsTFMap.size();
     }

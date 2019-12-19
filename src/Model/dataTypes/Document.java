@@ -1,6 +1,6 @@
 package Model.dataTypes;
 
-import java.util.HashMap;
+import java.util.*;
 
 // data structure to save all document data from the corpus
 public class Document{
@@ -8,12 +8,14 @@ public class Document{
     private String text;
     private int textLength;
     private HashMap<String, Integer> termsInDoc;
+    private int termsAmount;
 
     public Document(String docNO, String text) {
         this.docNo = docNO.replace(" ", "");
         this.text = text;
         this.textLength = text.length();
         this.termsInDoc=new HashMap<>();
+        this.termsAmount = 0;
     }
 
     public void addTerm(String term){
@@ -23,6 +25,7 @@ public class Document{
         else{
             termsInDoc.put(term, 1);
         }
+        this.termsAmount+=1;
     }
 
     public int uniqueTerms(){
@@ -52,6 +55,6 @@ public class Document{
 
     @Override
     public String toString() {
-        return this.docNo+";"+getMaxTF()+";"+uniqueTerms()+";"+this.textLength;
+        return this.docNo+";"+getMaxTF()+";"+uniqueTerms()+";"+this.termsAmount;
     }
 }

@@ -19,7 +19,6 @@ public class InvertedIndexCreator {
         this.merger = new Merger();
     }
 
-    // TODO: look for a way to minimize the memory consumption when converting the ConcurrentHashMap to regular HashMap
     public Map<String, TermDetails> create(ConcurrentHashMap<String, TermDetails> initialDictionary){
 
         Map<String, TermDetails> invertedIndexDictionary = new HashMap<>(initialDictionary);
@@ -30,9 +29,10 @@ public class InvertedIndexCreator {
             // capital rule
             if (invertedIndexDictionary.containsKey(term.toLowerCase())){
                 if (term.equals(term.toUpperCase()) && !term.toUpperCase().equals(term.toLowerCase())){
-                    TermDetails removedtermDetails = invertedIndexDictionary.get(term);
+                    TermDetails removedTermDetails = invertedIndexDictionary.get(term);
                     iterator.remove();
-                    invertedIndexDictionary.get(term.toLowerCase()).addDF(removedtermDetails.getDF());
+                    invertedIndexDictionary.get(term.toLowerCase()).addDF(removedTermDetails.getDF());
+                    invertedIndexDictionary.get(term.toLowerCase()).addTF(removedTermDetails.getCorpusTF());
                 }
             }
 
@@ -67,7 +67,6 @@ public class InvertedIndexCreator {
             }
             bufferedReader.close();
 
-            System.out.println(INVERTED_DICTIONARY_FILE_PATH);
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(INVERTED_DICTIONARY_FILE_PATH));
             for (Map.Entry<String, TermDetails> entry : invertedIndexDictionary.entrySet()){
                 String term = entry.getKey();

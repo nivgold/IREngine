@@ -28,7 +28,6 @@ public class Merger {
                     k++;
                 }
             }
-            System.out.println(FINAL_POSTING_FILE_PATH);
             // open the output file
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FINAL_POSTING_FILE_PATH),32767);
 
@@ -78,6 +77,7 @@ public class Merger {
                     secMinTerm = secPostingValue.substring(0, secPostingValue.indexOf('='));
                 }
                 // throw the accumulated data to the
+
                 bufferedWriter.write(minTerm+"="+stringBuilder);
                 bufferedWriter.newLine();
 

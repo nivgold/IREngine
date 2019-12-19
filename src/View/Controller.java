@@ -3,6 +3,7 @@ package View;
 import Model.Manager;
 import Model.communicator.ConfigReader;
 import Model.dataTypes.Term;
+import Model.preproccesing.Parse;
 import Model.preproccesing.ReadFile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -89,7 +90,7 @@ public class Controller {
             this.manager = new Manager();
             // start process
             this.manager.startProcess();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Files Read: "+ ReadFile.counter.get()+"\nUnique Terms: "+manager.getUniqueTermsNum()+"\nTotal Time: "+manager.getTotalTime());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Documents Read: "+ Parse.docCounter.get() +"\nUnique Terms: "+manager.getUniqueTermsNum()+"\nTotal Time: "+manager.getTotalTime());
             alert.show();
         }
     }
@@ -119,6 +120,7 @@ public class Controller {
                 deleteDirectory(postingDir);
                 postingDir.mkdirs();
             }
+            this.manager = null;
         }
     }
 
@@ -132,48 +134,62 @@ public class Controller {
     }
 
     public void showDictionaryButton(ActionEvent actionEvent){
-        //ConfigReader.loadConfiguration();
-        File dictionary = new File(ConfigReader.INVERTED_DICTIONARY_FILE_PATH);
-        if (!dictionary.exists()){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Found In Posting Path");
+        if (postingPath.get().equals("set path")){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No Posting Path Was Specified");
             alert.show();
         }
-        else{
-            // show dictionary
-            Stage dictionaryStage = new Stage();
-            TableView tableView = new TableView();
-            TableColumn<String, Term> column1 = new TableColumn<>("Term");
-            column1.setCellValueFactory(new PropertyValueFactory<>("value"));
-            TableColumn<String, Term> column2 = new TableColumn<>("TF");
-            column2.setCellValueFactory(new PropertyValueFactory<>("corpusTF"));
-            tableView.getColumns().addAll(column1, column2);
-            try{
-                List<String> sortedDictionary = new ArrayList<>();
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
-                String currentLine = "";
-                while ((currentLine = bufferedReader.readLine()) != null){
-                    sortedDictionary.add(currentLine);
+        else {
+            File dictionary = new File(ConfigReader.INVERTED_DICTIONARY_FILE_PATH);
+            if (!dictionary.exists()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Found In Posting Path");
+                alert.show();
+            } else {
+                // show dictionary
+                Stage dictionaryStage = new Stage();
+                TableView tableView = new TableView();
+                TableColumn<String, Term> column1 = new TableColumn<>("Term");
+                column1.setCellValueFactory(new PropertyValueFactory<>("value"));
+                TableColumn<String, Term> column2 = new TableColumn<>("TF");
+                column2.setCellValueFactory(new PropertyValueFactory<>("corpusTF"));
+                tableView.getColumns().addAll(column1, column2);
+                try {
+                    List<String> sortedDictionary = new ArrayList<>();
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.INVERTED_DICTIONARY_FILE_PATH));
+                    String currentLine = "";
+                    while ((currentLine = bufferedReader.readLine()) != null) {
+                        sortedDictionary.add(currentLine);
+                    }
+                    Collections.sort(sortedDictionary, new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            int firstDeli = o1.indexOf(';');
+                            int secondDeli = o2.indexOf(';');
+                            String term1 = o1.substring(0, firstDeli);
+                            String term2 = o2.substring(0, secondDeli);
+                            return term1.compareTo(term2);
+                        }
+                    });
+                    for (String entry : sortedDictionary) {
+                        int firstDelimiter = entry.indexOf(';');
+                        int secondDelimiter = entry.indexOf(';', firstDelimiter + 1);
+                        String term = entry.substring(0, firstDelimiter);
+                        String corpusTF = entry.substring(firstDelimiter + 1, secondDelimiter);
+                        //if (Integer.parseInt(corpusTF) == )
+                        tableView.getItems().add(new Term(term, corpusTF));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                Collections.sort(sortedDictionary);
-                for (String entry : sortedDictionary){
-                    int firstDelimiter = entry.indexOf(';');
-                    int secondDelimiter = entry.indexOf(';', firstDelimiter+1);
-                    String term = entry.substring(0, firstDelimiter);
-                    String corpusTF = entry.substring(firstDelimiter+1, secondDelimiter);
-                    tableView.getItems().add(new Term(term, corpusTF));
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+
+                VBox vBox = new VBox(tableView);
+                Scene scene = new Scene(vBox);
+                dictionaryStage.setScene(scene);
+                dictionaryStage.initModality(Modality.APPLICATION_MODAL);
+                dictionaryStage.show();
+
             }
-
-            VBox vBox = new VBox(tableView);
-            Scene scene = new Scene(vBox);
-            dictionaryStage.setScene(scene);
-            dictionaryStage.initModality(Modality.APPLICATION_MODAL);
-            dictionaryStage.show();
-
         }
     }
 
@@ -188,6 +204,7 @@ public class Controller {
             alert.show();
         }
         else{
+            this.manager = new Manager();
             this.manager.loadDictionary();
         }
     }

@@ -19,6 +19,9 @@ public class ConfigReader {
     public static String DOCUMENT_POSTING_PATH;
     public static boolean STEMMING = false;
 
+    /**
+     * loading all the configurations from the config.properties to the fields of the class
+     */
     public static void loadConfiguration(){
         try{
             Properties properties = new Properties();
@@ -35,12 +38,21 @@ public class ConfigReader {
         }
     }
 
+    /**
+     * updates the CORPUS_DIR_PATH field
+     * @param newCorpusPath updated corpus path
+     */
     public static void updateCorpusPath(String newCorpusPath){
         CORPUS_DIR_PATH = newCorpusPath;
 
         // stop words file path
         STOP_WORDS_FILE_PATH = CORPUS_DIR_PATH + "\\05 stop_words.txt";
     }
+
+    /**
+     * updates the POSTING_DIR_PATH field
+     * @param newPostingPath updated posting path
+     */
     public static void updatePostingPath(String newPostingPath){
         POSTING_DIR_PATH = newPostingPath;
 
@@ -49,11 +61,19 @@ public class ConfigReader {
 
         updatePostingDependencies();
     }
+
+    /**
+     * updates the STEMMING field
+     * @param stemming updated stemming option (true-with/false-without)
+     */
     public static void setStemming(boolean stemming){
         STEMMING = stemming;
         updatePostingDependencies();
     }
 
+    /**
+     * updates all the dependencies paths derived from POSTING_DIR_PATH and CORPUS_DIR_PATH
+     */
     private static void updatePostingDependencies(){
         if (STEMMING){
             // final posting file path

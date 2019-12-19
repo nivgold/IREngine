@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 // reading the corpus files to the RAM
 public class ReadFile{
-    public static AtomicInteger counter = new AtomicInteger(0);
     private String path;
     private int startOfDocs;
     private int numOfDocs;
@@ -56,7 +55,6 @@ public class ReadFile{
         }catch (IOException e) {
             e.printStackTrace();
         }
-        counter.getAndAdd(1);
     }
 
     public Set<String> getResult() {

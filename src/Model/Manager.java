@@ -4,6 +4,7 @@ import Model.communicator.ConfigReader;
 import Model.dataTypes.TermDetails;
 import Model.index.Indexer;
 import Model.index.InvertedIndexCreator;
+import Model.preproccesing.Parse;
 import Model.preproccesing.ReadFile;
 
 import java.io.*;
@@ -46,10 +47,7 @@ public class Manager {
             e.printStackTrace();
         }
 
-        workers = null;
-
         // verify that all the files where read
-        System.out.println("number of files read: "+ ReadFile.counter.get());
 
         // all the batch posting were created and now the final indexing can start
         InvertedIndexCreator indexCreator = new InvertedIndexCreator();
@@ -79,7 +77,7 @@ public class Manager {
         postingDir.mkdirs();
 
         // clean old memory
-        ReadFile.counter.set(0);
+        Parse.docCounter.set(0);
         Indexer.invertedIndexDictionary = new ConcurrentHashMap<>();
     }
 

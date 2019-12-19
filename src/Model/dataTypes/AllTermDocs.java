@@ -45,13 +45,17 @@ public class AllTermDocs {
     }
 
     /**
-     *
-     * @return term
+     * returns the associated term's df in the batch
+     * @return term df int batch
      */
     public int getDF(){
         return docsTFMap.size();
     }
 
+    /**
+     * returns the associated term's tf in the batch
+     * @return term tf in batch
+     */
     public int getTermTFInBatch() {
         return termTFInBatch;
     }

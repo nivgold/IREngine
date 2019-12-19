@@ -19,6 +19,11 @@ public class InvertedIndexCreator {
         this.merger = new Merger();
     }
 
+    /**
+     * creating a new updated inverted index dictionary from all the worker's batches
+     * @param initialDictionary un-updated inverted index dictionary
+     * @return updated inverted index dictionary
+     */
     public Map<String, TermDetails> create(ConcurrentHashMap<String, TermDetails> initialDictionary){
 
         Map<String, TermDetails> invertedIndexDictionary = new HashMap<>(initialDictionary);
@@ -54,6 +59,10 @@ public class InvertedIndexCreator {
         return invertedIndexDictionary;
     }
 
+    /**
+     * saving the updated final dictionary to the disk
+     * @param invertedIndexDictionary final inverted index dictionary
+     */
     private void saveToDisk(Map<String, TermDetails> invertedIndexDictionary){
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(FINAL_POSTING_FILE_PATH));

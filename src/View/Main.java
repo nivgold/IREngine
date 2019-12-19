@@ -37,6 +37,11 @@ public class Main extends Application {
         launch(args);
     }
 
+    /**
+     * handles the operation of clicking on 'X'
+     * @param primaryStage Application Stage
+     * @param manager instance of Manager
+     */
     private void setStageCloseEvent(Stage primaryStage, Manager manager) {
         primaryStage.setOnCloseRequest(event -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"Are you sure you want to exit?");

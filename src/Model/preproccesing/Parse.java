@@ -959,8 +959,8 @@ public class Parse{
 
     /**
      * parse a single word, using stemmer if needed
-     *
-     * @param phrase   represents a word
+     * reference: https://tartarus.org/martin/PorterStemmer/java.txt
+     * @param phrase represents a word
      * @param document containing the given phrase
      */
     private void parseSingleWord(Phrase phrase, Document document) {

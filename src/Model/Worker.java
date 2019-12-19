@@ -71,6 +71,11 @@ public class Worker implements Runnable{
         System.out.println("worker"+this.workerID+" done in: "+(total/60));
     }
 
+    /**
+     * saving all the batch document and their data to disk
+     * @param documents List of Documents
+     * @param currentBatch current worker's batch number
+     */
     private void saveDocsToDisk(HashSet<Document> documents, int currentBatch) {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(DOCUMENT_POSTING_PATH+"document_posting_worker"+workerID+"_batch"+(currentBatch+1)+".txt"));

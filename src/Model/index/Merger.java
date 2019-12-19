@@ -18,7 +18,10 @@ public class Merger {
     private BufferedReader[] bufferedReaders = new BufferedReader[filesAmount];
     private String[] currentLines = new String[filesAmount];
 
-
+    /**
+     * performing a merge sort on fileAmount of files to a final posting file
+     * @param invertedIndexDictionary final inverted index dictionary
+     */
     public void merge(Map<String, TermDetails> invertedIndexDictionary){
         try {
             int k = 0;
@@ -96,6 +99,10 @@ public class Merger {
 
     }
 
+    /**
+     * finding the "minimum" line from the all files
+     * @return index of the bufferReader of the file that contains the "minimum" line
+     */
     private int checkLowestTerm(){
         int minIndex = -1;
         String minTerm = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";

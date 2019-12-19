@@ -21,6 +21,9 @@ public class Manager {
     private double total;
 
 
+    /**
+     * starting the indexing process
+     */
     public void startProcess() {
         double start = System.nanoTime();
 
@@ -61,6 +64,9 @@ public class Manager {
         System.out.println("Total time: "+(total/60)+" mins");
     }
 
+    /**
+     * initializing the working environment to the indexing process
+     */
     private void initialize(){
         String CORPUS_PATH = ConfigReader.CORPUS_DIR_PATH +"\\corpus";
         File mainDirectory = new File(CORPUS_PATH);
@@ -81,6 +87,9 @@ public class Manager {
         Indexer.invertedIndexDictionary = new ConcurrentHashMap<>();
     }
 
+    /**
+     * loading a dictionary that is already saved in the disk
+     */
     public void loadDictionary(){
         try{
             this.dictionary = null;
@@ -103,10 +112,18 @@ public class Manager {
         }
     }
 
+    /**
+     * returns number of unique terms in the dictionary
+     * @return number of unique terms
+     */
     public int getUniqueTermsNum(){
         return this.dictionary.size();
     }
 
+    /**
+     * returns the total time took to run the whole indexing process
+     * @return total time
+     */
     public double getTotalTime(){
         return this.total;
     }

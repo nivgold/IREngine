@@ -1,6 +1,10 @@
 package Model.dataTypes;
 
 // data structure that hold a specific term in a batch
+
+/**
+ * data structure that holds a specific term in a batch
+ */
 public class Phrase {
     private int startIndex;
     private int endIndex;
@@ -12,18 +16,34 @@ public class Phrase {
         this.value = value;
     }
 
+    /**
+     * the index of the first char of the phrase in the document he is in
+     * @return phrase's start index
+     */
     public int getStartIndex() {
         return startIndex;
     }
 
+    /**
+     * the index of the end char of the phrase in the document he is in
+     * @return phrase's end index
+     */
     public int getEndIndex() {
         return endIndex;
     }
 
+    /**
+     * the value of the phrase (String)
+     * @return phrase's value
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * updates the phrase's value
+     * @param value new value
+     */
     public void setValue(String value) {
         this.value = value;
     }

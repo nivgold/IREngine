@@ -22,6 +22,9 @@ public class ReadFile{
         this.result = new HashSet<>();
     }
 
+    /**
+     * reading numOfDocs file starting with file index: startOfDocs from the given path in the constructor
+     */
     public void read(){
         path += "\\corpus";
         File mainDirectory = new File(path);
@@ -33,6 +36,10 @@ public class ReadFile{
         }
     }
 
+    /**
+     * reading fileName file content and creating documents
+     * @param fileName file path
+     */
     private void readCurrentDir(String fileName) {
         try {
             StringBuilder stringBuilder = new StringBuilder();

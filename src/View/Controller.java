@@ -4,7 +4,6 @@ import Model.Manager;
 import Model.communicator.ConfigReader;
 import Model.dataTypes.Term;
 import Model.preproccesing.Parse;
-import Model.preproccesing.ReadFile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -46,8 +45,11 @@ public class Controller {
     @FXML
     private CheckBox stemming_CheckBox;
 
-
-
+    /**
+     * initializing the class necessarily fields
+     * @param mainStage main Application stage
+     * @param manager an instance of Manager
+     */
     public void initialize(Stage mainStage, Manager manager){
         this.mainStage = mainStage;
         this.manager = manager;
@@ -55,11 +57,15 @@ public class Controller {
         posting_path_TextField.textProperty().bind(Bindings.format("%s", this.postingPath));
     }
 
+    /**
+     * handles the event associated with 'corpus_path' button
+     * @param actionEvent an ActionEvent associated with "corpus_path" Button
+     */
     public void corpus_pathAction(ActionEvent actionEvent){
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDir = directoryChooser.showDialog(mainStage);
         if (selectedDir == null){
-            System.out.println("not valid directory");
+            postingPath.setValue("set path");
         }
         else{
             corpusPath.setValue(selectedDir.getAbsolutePath());
@@ -68,11 +74,15 @@ public class Controller {
         }
     }
 
+    /**
+     * handles the event associated with 'posting_path' Button
+     * @param actionEvent an ActionEvent associated with 'posting_path' Button
+     */
     public void posting_pathAction(ActionEvent actionEvent){
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDir = directoryChooser.showDialog(mainStage);
         if (selectedDir == null){
-            System.out.println("not valid directory");
+            postingPath.setValue("set path");
         }
         else{
             postingPath.setValue(selectedDir.getAbsolutePath());
@@ -80,6 +90,10 @@ public class Controller {
         }
     }
 
+    /**
+     * handles the event associated with 'start' Button - starting the index process if allowed
+     * @param actionEvent an ActionEvent associated with the 'start' Button
+     */
     public void startAction(ActionEvent actionEvent){
         if (corpusPath.get().equals("set path") || postingPath.get().equals("set path")){
             // pop a warning dialog
@@ -87,14 +101,23 @@ public class Controller {
             alert.show();
         }
         else{
-            this.manager = new Manager();
-            // start process
-            this.manager.startProcess();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Documents Read: "+ Parse.docCounter.get() +"\nUnique Terms: "+manager.getUniqueTermsNum()+"\nTotal Time: "+manager.getTotalTime());
-            alert.show();
+            try {
+                this.manager = new Manager();
+                // start process
+                this.manager.startProcess();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Documents Read: " + Parse.docCounter.get() + "\nUnique Terms: " + manager.getUniqueTermsNum() + "\nTotal Time: " + manager.getTotalTime());
+                alert.show();
+            }catch (Exception e){
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage()+"\n"+ConfigReader.WORKER_NUM);
+                alert.show();
+            }
         }
     }
 
+    /**
+     * handles the event associated with 'stemming' CheckBox
+     * @param actionEvent an ActionEvent associated with the 'stemming' CheckBox
+     */
     public void stemmingAction(ActionEvent actionEvent){
         if (stemming_CheckBox.isSelected()){
             // with stemming
@@ -106,6 +129,10 @@ public class Controller {
         }
     }
 
+    /**
+     * handles the event associated with the 'reset' Button
+     * @param actionEvent an ActionEvent associated with the 'reset' Button
+     */
     public void resetAction(ActionEvent actionEvent){
         if (postingPath.get().equals("set path")){
             Alert alert = new Alert(Alert.AlertType.WARNING, "Posting Path Not Specified");
@@ -124,6 +151,11 @@ public class Controller {
         }
     }
 
+    /**
+     * cleaning all the directory content
+     * @param directory path to the directory needs to be clean
+     * @return True if all the directory content was deleted and False if not
+     */
     private boolean deleteDirectory(File directory){
         File[] files = directory.listFiles();
         if (files != null){
@@ -133,6 +165,10 @@ public class Controller {
         return directory.delete();
     }
 
+    /**
+     * handles the event associated with the 'show_dictionary' Button
+     * @param actionEvent an ActionEvent associated with the 'show_dictionary' Button
+     */
     public void showDictionaryButton(ActionEvent actionEvent){
         if (postingPath.get().equals("set path")){
             Alert alert = new Alert(Alert.AlertType.ERROR, "No Posting Path Was Specified");
@@ -193,6 +229,10 @@ public class Controller {
         }
     }
 
+    /**
+     * handles the event associated with the 'load_dictionary' Button
+     * @param actionEvent an ActionEvent associated with the 'load_dictionary' Button
+     */
     public void load_dictionaryAction(ActionEvent actionEvent){
         File dictionaryFile = new File(ConfigReader.INVERTED_DICTIONARY_FILE_PATH);
         if (!dictionaryFile.exists()){

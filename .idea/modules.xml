@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/javaFXProject.iml" filepath="$PROJECT_DIR$/javaFXProject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IREngine.iml" filepath="$PROJECT_DIR$/IREngine.iml" />
     </modules>
   </component>
 </project>

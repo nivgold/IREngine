@@ -2,7 +2,7 @@
   <artifact type="jar" name="javaFXProject:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/javaFXProject_jar</output-path>
     <root id="archive" name="IREngine.jar">
-      <element id="module-output" name="javaFXProject" />
+      <element id="module-output" name="IREngine" />
     </root>
   </artifact>
 </component>

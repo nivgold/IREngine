@@ -14,7 +14,7 @@
     </properties>
     <root id="root">
       <element id="archive" name="javaFXProject.jar">
-        <element id="module-output" name="javaFXProject" />
+        <element id="module-output" name="IREngine" />
       </element>
     </root>
   </artifact>

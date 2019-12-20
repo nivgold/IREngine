@@ -42,7 +42,7 @@ public class BatchFlusher {
      * appends a new line to the bufferWriter
      * @param toString line to be added to the file
      */
-    public void appendString(String toString) {
+    private void appendString(String toString) {
         try {
             if (toString.endsWith(" "))
                 toString = toString.substring(0, toString.length()-1);
@@ -56,7 +56,7 @@ public class BatchFlusher {
     /**
      * closing the file that the bufferWriter writes to
      */
-    public void closeFile() {
+    private void closeFile() {
         try {
             this.bufferedWriter.close();
         } catch (IOException e) {
@@ -68,7 +68,7 @@ public class BatchFlusher {
      * opening the file that the bufferWriter writes to
      * @param batchID number of the current batch
      */
-    public void openFile(int batchID) {
+    private void openFile(int batchID) {
         String fullPath = this.workerPath+"_batch"+(batchID+1)+".txt";
         try {
             this.bufferedWriter = new BufferedWriter(new FileWriter(fullPath));

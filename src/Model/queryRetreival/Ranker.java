@@ -80,7 +80,7 @@ public class Ranker {
         Collections.sort(sortedDocuments, new Comparator<Map.Entry<String, Double>>() {
             @Override
             public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
-                return o1.getValue().compareTo(o2.getValue());
+                return o2.getValue().compareTo(o1.getValue());
             }
         });
 
@@ -90,9 +90,9 @@ public class Ranker {
     private void normalizeInnerProductSimilarity(Map<String, DocumentDetails> documentDictionary, int queryLength) {
         for (Map.Entry<String, Double> entry : innerProductSimilarityMap.entrySet()){
             String docNo = entry.getKey();
-            int docLength = documentDictionary.get(docNo).getDocLength();
+            int maxTF = documentDictionary.get(docNo).getMaxTF();
             double currentSimilarity = innerProductSimilarityMap.get(docNo);
-            innerProductSimilarityMap.put(docNo, currentSimilarity/(docLength*queryLength));
+            innerProductSimilarityMap.put(docNo, currentSimilarity/(maxTF*queryLength));
         }
     }
 

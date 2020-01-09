@@ -1,6 +1,7 @@
 package Model.queryRetreival;
 
 import Model.Utils;
+import Model.communicator.ConfigReader;
 import Model.dataTypes.AllTermDocs;
 import Model.dataTypes.DocumentDetails;
 import Model.dataTypes.Query;
@@ -18,21 +19,21 @@ import java.net.URL;
 import java.util.*;
 
 public class Searcher {
-    public List<String> search(Query query, Map<String, TermDetails> dictionary, Map<String, DocumentDetails> documentDictionary){
+    public List<Map.Entry<String, Double>> search(Query query, Map<String, TermDetails> dictionary, Map<String, DocumentDetails> documentDictionary){
         Parse parse = new Parse(Utils.loadStopWords());
         Ranker ranker = new Ranker();
         parse.parseQuery(query);
         ArrayList<Map.Entry<String, AllTermDocs>> queryTerms = parse.getTermDocsMap();
 
         // semantic treat
-        if (true){
+        if (ConfigReader.SEMANTIC_TREAT){
             semanticTreat(queryTerms, query, dictionary);
         }
         List<Map.Entry<String, Double>> retrievedDocuments = ranker.rank(queryTerms, dictionary, documentDictionary);
-        List<String> relevantDocuments = new ArrayList<>();
+        List<Map.Entry<String, Double>> relevantDocuments = new ArrayList<>();
 
         for (int i=0; i<Math.min(50, retrievedDocuments.size()); i++){
-            relevantDocuments.add(retrievedDocuments.get(i).getKey());
+            relevantDocuments.add(retrievedDocuments.get(i));
         }
         return relevantDocuments;
     }

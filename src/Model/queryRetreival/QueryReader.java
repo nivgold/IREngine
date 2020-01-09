@@ -56,6 +56,7 @@ public class QueryReader {
     public Query makeQuery(String text){
         while (queryIDs.contains(availableQueryID))
             availableQueryID++;
+        text = " "+text+" ";
         return new Query(availableQueryID+"", text);
     }
 }

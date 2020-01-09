@@ -20,7 +20,9 @@ public class ConfigReader {
     public static String INVERTED_DICTIONARY_FILE_PATH;
     public static String STOP_WORDS_FILE_PATH;
     public static String DOCUMENT_POSTING_PATH;
+    public static String QUERIES_FILE_PATH;
     public static boolean STEMMING = false;
+    public static boolean SEMANTIC_TREAT = false;
 
     /**
      * loading all the configurations from the config.properties to the fields of the class
@@ -66,6 +68,10 @@ public class ConfigReader {
         updatePostingDependencies();
     }
 
+    public static void updateQueriesPath(String newQueriesPath){
+        QUERIES_FILE_PATH = newQueriesPath;
+    }
+
     /**
      * updates the STEMMING field
      * @param stemming updated stemming option (true-with/false-without)
@@ -73,6 +79,14 @@ public class ConfigReader {
     public static void setStemming(boolean stemming){
         STEMMING = stemming;
         updatePostingDependencies();
+    }
+
+    /**
+     * updates the SEMANTIC_TREAT field
+     * @param semantic updated semantic treat option (true-with/false-without)
+     */
+    public static void setSemantic(boolean semantic){
+        SEMANTIC_TREAT = semantic;
     }
 
     /**

@@ -18,11 +18,11 @@ public class Main extends Application {
         Manager manager = new Manager();
 
         primaryStage.setTitle("Engine");
-        primaryStage.setWidth(600);
-        primaryStage.setHeight(450);
+        primaryStage.setWidth(666);
+        primaryStage.setHeight(690);
         FXMLLoader fxmlLoader = new FXMLLoader();
         Parent root = fxmlLoader.load(getClass().getResource("/View/View.fxml").openStream());
-        Scene scene = new Scene(root, 600, 450);
+        Scene scene = new Scene(root, 666, 690);
         primaryStage.setScene(scene);
 
         Controller controller = fxmlLoader.getController();

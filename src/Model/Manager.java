@@ -30,10 +30,6 @@ public class Manager {
     private Map<String, List<String>> documentsEntityMap;
     private Map<String, DocumentDetails> documentDictionary;
 
-    public Map<String, List<String>> getDocumentsEntityMap(){
-        return documentsEntityMap;
-    }
-
     private void createDocumentsEntityMap(){
         this.documentsEntityMap = new HashMap<>();
         Set entrySet = dictionary.entrySet();
@@ -119,8 +115,21 @@ public class Manager {
         }
     }
 
-    public Map<String, List<String>> retrieveFromPath(String path){
-        HashMap<String, List<String>> results = new HashMap<>();
+    public String getDocDominantEntities(String docNo){
+        String result="";
+        if (documentsEntityMap.containsKey(docNo)) {
+            List<String> entities = documentsEntityMap.get(docNo);
+            for (String entity : entities){
+                result+= entity+" ";
+            }
+            result = result.substring(0, result.length()-1);
+        }
+        return result;
+    }
+
+    public Map<String, List<Map.Entry<String, Double>>> retrieveFromPath(){
+        String path = ConfigReader.QUERIES_FILE_PATH;
+        HashMap<String, List<Map.Entry<String, Double>>> results = new HashMap<>();
         QueryReader queryReader = new QueryReader();
         Searcher searcher = new Searcher();
         Set<Query> queries = queryReader.extractQueriesFromPath(path);
@@ -131,15 +140,19 @@ public class Manager {
         return results;
     }
 
-    public List<String> retrieveFromText(String text){
+    public Map<String, List<Map.Entry<String, Double>>> retrieveFromText(String text){
+        Map<String, List<Map.Entry<String, Double>>> result = new HashMap<>();
+        System.out.println(text);
         QueryReader queryReader = new QueryReader();
         Searcher searcher = new Searcher();
         Query query = queryReader.makeQuery(text);
-        return searcher.search(query, dictionary, documentDictionary);
+        result.put(query.getQueryID(), searcher.search(query, dictionary, documentDictionary));
+        return result;
     }
 
     private void loadDocumentDictionary(){
         this.documentDictionary = new HashMap<>();
+        int totalDocLength = 0;
         int workerIDIndex=5;
         while (workerIDIndex>0){
             int batchIDIndex=36;
@@ -151,6 +164,7 @@ public class Manager {
                     String currentLine="";
                     while ((currentLine = bufferedReader.readLine())!=null){
                         String[] values = currentLine.split(";");
+                        totalDocLength+=Integer.parseInt(values[3]);
                         documentDictionary.put(values[0], new DocumentDetails(values[0], Integer.parseInt(values[1]), Integer.parseInt(values[2]), Integer.parseInt(values[3])));
                     }
                 } catch (FileNotFoundException e) {
@@ -162,6 +176,8 @@ public class Manager {
             }
             workerIDIndex--;
         }
+        Parse.docCounter.set(documentDictionary.size());
+        Parse.totalDocLength.set(totalDocLength);
     }
 
     /**
@@ -200,6 +216,8 @@ public class Manager {
         this.dictionary = indexCreator.create(Indexer.invertedIndexDictionary);
 
         //loading the document dictionary
+        loadDocumentDictionary();
+        //creating the document entity map
         createDocumentsEntityMap();
 
         // clean the up-updated concurrent HashMap
@@ -269,6 +287,16 @@ public class Manager {
      */
     public int getUniqueTermsNum(){
         return this.dictionary.size();
+    }
+
+    /**
+     * telling whether there is a loaded dictionary or not
+     * @return true if dictionary is not null and false if it is null
+     */
+    public boolean hasDictioanry(){
+        if (this.dictionary==null)
+            return false;
+        return true;
     }
 
     /**

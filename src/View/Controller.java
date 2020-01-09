@@ -2,6 +2,8 @@ package View;
 
 import Model.Manager;
 import Model.communicator.ConfigReader;
+import Model.dataTypes.Query;
+import Model.dataTypes.ResultQuery;
 import Model.dataTypes.Term;
 import Model.preproccesing.Parse;
 import javafx.beans.binding.Bindings;
@@ -14,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -27,6 +30,7 @@ public class Controller {
     private Stage mainStage;
     private StringProperty corpusPath = new SimpleStringProperty("set path");
     private StringProperty postingPath = new SimpleStringProperty("set path");
+    private StringProperty queriesPath = new SimpleStringProperty("set path");
     private Manager manager;
 
     @FXML
@@ -47,6 +51,14 @@ public class Controller {
     private TextField posting_path_TextField;
     @FXML
     private CheckBox stemming_CheckBox;
+    @FXML
+    private CheckBox semantic_CheckBox;
+    @FXML
+    private TextField queries_path_TextField;
+    @FXML
+    private Button queries_path_run_Button;
+    @FXML
+    private TextField search_TextField;
 
     /**
      * initializing the class necessarily fields
@@ -58,6 +70,7 @@ public class Controller {
         this.manager = manager;
         corpus_path_TextField.textProperty().bind(Bindings.format("%s", this.corpusPath));
         posting_path_TextField.textProperty().bind(Bindings.format("%s", this.postingPath));
+        queries_path_TextField.textProperty().bind(Bindings.format("%s", this.queriesPath));
     }
 
     /**
@@ -94,6 +107,22 @@ public class Controller {
     }
 
     /**
+     * handles the event associated with 'queries_path' Button
+     * @param actionEvent an ActionEvent associated with 'queries_path' Button
+     */
+    public void queries_pathAction(ActionEvent actionEvent){
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showOpenDialog(mainStage);
+        if (selectedFile == null){
+            queriesPath.setValue("set path");
+        }
+        else{
+            queriesPath.setValue(selectedFile.getAbsolutePath());
+            ConfigReader.updateQueriesPath(selectedFile.getAbsolutePath());
+        }
+    }
+
+    /**
      * handles the event associated with 'start' Button - starting the index process if allowed
      * @param actionEvent an ActionEvent associated with the 'start' Button
      */
@@ -118,6 +147,62 @@ public class Controller {
     }
 
     /**
+     * handles the event associated with 'run' Button - starting the retrieval process from path if allowed
+     * @param actionEvent an ActionEvent associated with the 'query file path run' Button
+     */
+    public void queries_path_runAction(ActionEvent actionEvent){
+        if (queriesPath.get().equals("set path") || corpusPath.get().equals("set path") || postingPath.get().equals("set path")){
+            // pop an error dialog
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Not All Parameters Were Set");
+            alert.show();
+        }
+        else{
+            try{
+                Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromPath();
+                for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : result.entrySet()){
+                    System.out.println(entry.getValue());
+                    System.out.println(entry.getValue().size());
+                }
+                //pop a new stage that showing the results
+                showQueryResult(result);
+            }catch (Exception e){
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+                alert.show();
+            }
+        }
+    }
+
+    /**
+     * handles the event associated with 'run' Button - starting the retrieval process of free text if allowed
+     * @param actionEvent an ActionEvent associated with the 'search run' Button
+     */
+    public void search_runAction(ActionEvent actionEvent){
+        long start = System.nanoTime();
+        if (corpusPath.get().equals("set path") || postingPath.get().equals("set path") || search_TextField.getText()==""){
+            // pop an error dialog
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Not All Parameters Were Set");
+            alert.show();
+        }
+        else if (!this.manager.hasDictioanry()){
+            // pop en error dialog
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Was Found");
+            alert.show();
+        }
+        else{
+            try{
+                Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromText(search_TextField.getText());
+                // pop a new stage that showing the results
+                showQueryResult(result);
+            }catch (Exception e){
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+                alert.show();
+            }
+        }
+    }
+
+    /**
      * handles the event associated with 'stemming' CheckBox
      * @param actionEvent an ActionEvent associated with the 'stemming' CheckBox
      */
@@ -129,6 +214,21 @@ public class Controller {
         else{
             // without stemming
             ConfigReader.setStemming(false);
+        }
+    }
+
+    /**
+     * handles the event associated with 'semantic treat' CheckBox
+     * @param actionEvent an ActionEven associated with the 'semantic treat' CheckBox
+     */
+    public void semanticAction(ActionEvent actionEvent){
+        if (semantic_CheckBox.isSelected()){
+            // with semantic treat
+            ConfigReader.setSemantic(true);
+        }
+        else{
+            // without semantic treat
+            ConfigReader.setSemantic(false);
         }
     }
 
@@ -214,7 +314,6 @@ public class Controller {
                         int secondDelimiter = entry.indexOf(';', firstDelimiter + 1);
                         String term = entry.substring(0, firstDelimiter);
                         String corpusTF = entry.substring(firstDelimiter + 1, secondDelimiter);
-                        //if (Integer.parseInt(corpusTF) == )
                         tableView.getItems().add(new Term(term, corpusTF));
                     }
                 } catch (FileNotFoundException e) {
@@ -231,6 +330,38 @@ public class Controller {
 
             }
         }
+    }
+
+    private void showQueryResult(Map<String, List<Map.Entry<String, Double>>> results){
+        Stage resultStage = new Stage();
+        resultStage.setWidth(842);
+        TableView tableView = new TableView();
+        TableColumn<String, ResultQuery> column1 = new TableColumn<>("query ID");
+        column1.setCellValueFactory(new PropertyValueFactory<>("queryID"));
+        TableColumn<String, ResultQuery> column2 = new TableColumn<>("Document ID");
+        column2.setCellValueFactory(new PropertyValueFactory<>("docNO"));
+        TableColumn<String, ResultQuery> column3 = new TableColumn<>("Similarity");
+        column3.setCellValueFactory(new PropertyValueFactory<>("similarity"));
+        TableColumn<String, ResultQuery> column4 = new TableColumn<>("Dominant Entities");
+        column4.setCellValueFactory(new PropertyValueFactory<>("dominantEntities"));
+        tableView.getColumns().addAll(column1, column2, column3, column4);
+
+        for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : results.entrySet()){
+            String queryID = entry.getKey();
+            List<Map.Entry<String, Double>> relevantDocuments = entry.getValue();
+            for (Map.Entry<String, Double> document : relevantDocuments){
+                String docNO = document.getKey();
+                String similarity = document.getValue()+"";
+                String dominantEntities = this.manager.getDocDominantEntities(docNO);
+                tableView.getItems().add(new ResultQuery(queryID, docNO, similarity, dominantEntities));
+            }
+        }
+
+        VBox vBox = new VBox(tableView);
+        Scene scene = new Scene(vBox);
+        resultStage.setScene(scene);
+        resultStage.initModality(Modality.APPLICATION_MODAL);
+        resultStage.show();
     }
 
     /**

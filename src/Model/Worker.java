@@ -48,7 +48,7 @@ public class Worker implements Runnable{
         double start = System.nanoTime();
         ReadFile readFile;
         Parse parser;
-        Set<String> stopWords = loadStopWords();
+        Set<String> stopWords = Utils.loadStopWords();
         for (int i=0; i<BATCH_NUM; i++){
             if (i == BATCH_NUM-1){
                 readFile = new ReadFile(ConfigReader.CORPUS_DIR_PATH, startIndex +(batchFilesNum*i), batchFilesNum+filesLeft);
@@ -92,25 +92,5 @@ public class Worker implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * loading the 'stop_words' file from the disk
-     */
-    private Set<String> loadStopWords(){
-        Set<String> stopWords = new HashSet<>();
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfigReader.STOP_WORDS_FILE_PATH));
-            String currentLine;
-            while ((currentLine = bufferedReader.readLine()) != null) {
-                stopWords.add(currentLine);
-            }
-            bufferedReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stopWords;
     }
 }

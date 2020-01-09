@@ -20,6 +20,8 @@ public class Document{
         this.termsAmount = 0;
     }
 
+
+
     /**
      * updates the document tf "counter" of each term he contains
      * @param term term instance in the current document
@@ -65,7 +67,7 @@ public class Document{
 
     /**
      * returns the length of the document text
-     * @return document length
+     * @return document length by chars
      */
     public int getTextLength() {
         return textLength;
@@ -77,6 +79,14 @@ public class Document{
      */
     public String getDocNo() {
         return docNo;
+    }
+
+    /**
+     * returns the document length by words
+     * @return document length by words
+     */
+    public int getDocLength(){
+        return this.termsAmount;
     }
 
     @Override

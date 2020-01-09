@@ -68,6 +68,9 @@ public class InvertedIndexCreator {
     private void saveToDisk(Map<String, TermDetails> invertedIndexDictionary){
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(FINAL_POSTING_FILE_PATH));
+            String updatedName = FINAL_POSTING_FILE_PATH.substring(0, FINAL_POSTING_FILE_PATH.indexOf("."));
+            updatedName = updatedName+"_updated.txt";
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(updatedName));
             String currentLine="";
             int lineNumber = 0;
             while ((currentLine=bufferedReader.readLine()) != null){
@@ -75,10 +78,18 @@ public class InvertedIndexCreator {
                 TermDetails termDetails = invertedIndexDictionary.get(term);
                 termDetails.setPostingPointer(lineNumber+"");
                 lineNumber++;
+
+                bufferedWriter.write(currentLine.substring(currentLine.indexOf("=")+1));
+                bufferedWriter.newLine();
             }
             bufferedReader.close();
+            bufferedWriter.close();
+            File first = new File(FINAL_POSTING_FILE_PATH);
+            File updated = new File(updatedName);
+            first.delete();
+            updated.renameTo(first);
 
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(INVERTED_DICTIONARY_FILE_PATH));
+            bufferedWriter = new BufferedWriter(new FileWriter(INVERTED_DICTIONARY_FILE_PATH));
             for (Map.Entry<String, TermDetails> entry : invertedIndexDictionary.entrySet()){
                 String term = entry.getKey();
                 TermDetails termDetails = entry.getValue();

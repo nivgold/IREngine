@@ -24,6 +24,7 @@ public class Parse{
     private Set<String> docs;
     private Set<String> stop_words;
     public static AtomicInteger docCounter = new AtomicInteger(0);
+    public static AtomicInteger totalDocLength = new AtomicInteger(0);
 
     public Parse(Set<String> docs, Set<String> stop_words) {
         this.docs = docs;
@@ -31,6 +32,15 @@ public class Parse{
         this.termDocsMap = new HashMap<>();
         this.stop_words = new HashSet<>();
         this.stop_words = stop_words;
+    }
+
+    public Parse(Set<String> stop_words) {
+        this.termDocsMap = new HashMap<>();
+        this.stop_words = stop_words;
+    }
+
+    public static double getAVDL(){
+        return ((double)docCounter.get()/totalDocLength.get());
     }
 
     /**
@@ -49,6 +59,12 @@ public class Parse{
         return sortedTerms;
     }
 
+    public void parseQuery(Query query){
+        Document document = new Document(query.getQueryID(), query.getQueryText());
+        numbers(document);
+        words(document);
+        wordMakaf(document);
+    }
     /**
      * iterating over the docs and parse each one of them
      */
@@ -71,7 +87,9 @@ public class Parse{
         numbers(document);
         words(document);
         wordMakaf(document);
+
         documents.add(document);
+        totalDocLength.addAndGet(document.getDocLength());
     }
 
     /**
@@ -1020,9 +1038,13 @@ public class Parse{
                     docTexts.append(stringBuilder.toString());
                 }
                 else{
-                    if (!currentLine.startsWith("<")){
-                        stringBuilder.append(currentLine+"\n");
-                    }
+                    if (currentLine.startsWith("<"))
+                        continue;
+                    if (currentLine.startsWith("Article Type:BFN"))
+                        continue;
+                    if (currentLine.startsWith("Language:"))
+                        continue;
+                    stringBuilder.append(currentLine+"\n");
                 }
             }
         } catch (IOException e) {

@@ -17,7 +17,7 @@
       <Button fx:id="reset_Button" layoutX="160.0" layoutY="260.0" mnemonicParsing="false" onAction="#resetAction" prefHeight="25.0" prefWidth="110.0" text="Reset" />
       <Button fx:id="show_dictionary_Button" layoutX="295.0" layoutY="260.0" mnemonicParsing="false" onAction="#showDictionaryButton" prefWidth="110.0" text="Show Dictionary" />
       <Button fx:id="load_dictionary_Button" layoutX="430.0" layoutY="260.0" mnemonicParsing="false" onAction="#load_dictionaryAction" prefWidth="110.0" text="Load Dictionary" />
-      <Button fx:id="start_Button" layoutX="250.0" layoutY="328.0" mnemonicParsing="false" onAction="#startAction" prefHeight="50.0" prefWidth="100.0" text="Index" />
+      <Button fx:id="start_Button" layoutX="272.0" layoutY="311.0" mnemonicParsing="false" onAction="#startAction" prefHeight="50.0" prefWidth="100.0" text="Index" />
       <Label layoutX="260.0" layoutY="14.0" prefHeight="50.0" prefWidth="123.0" text="Indexing">
          <font>
             <Font size="30.0" />
@@ -29,15 +29,15 @@
          </font>
       </Label>
       <TextField fx:id="search_TextField" layoutX="197.0" layoutY="498.0" prefHeight="25.0" prefWidth="348.0" />
-      <Button fx:id="search_run_Button" onAction="#search_runAction" layoutX="581.0" layoutY="498.0" mnemonicParsing="false" text="RUN" />
-      <TextField fx:id="queries_path_TextField" disable="true" text="Set a Path For The Queries" layoutX="196.0" layoutY="561.0" prefHeight="25.0" prefWidth="348.0" />
-      <Button fx:id="queries_path_run_Button" onAction="#queries_path_runAction" layoutX="581.0" layoutY="561.0" mnemonicParsing="false" text="RUN" />
+      <Button fx:id="search_run_Button" layoutX="581.0" layoutY="498.0" mnemonicParsing="false" onAction="#search_runAction" text="RUN" />
+      <TextField fx:id="queries_path_TextField" disable="true" layoutX="196.0" layoutY="561.0" prefHeight="25.0" prefWidth="348.0" text="Set a Path For The Queries" />
+      <Button fx:id="queries_path_run_Button" layoutX="581.0" layoutY="561.0" mnemonicParsing="false" onAction="#queries_path_runAction" text="RUN" />
       <Label layoutX="132.0" layoutY="499.0" prefHeight="17.0" prefWidth="57.0" text="Search:">
          <font>
             <Font size="15.0" />
          </font>
       </Label>
-      <Button fx:id="queries_path_Button" onAction="#queries_pathAction" layoutX="28.0" layoutY="558.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="152.0" text="Select Queries Path" />
-      <CheckBox fx:id="semantic_CheckBox" onAction="#semanticAction" layoutX="300.0" layoutY="605.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="110.0" text="Semantic Treat" />
+      <Button fx:id="queries_path_Button" layoutX="28.0" layoutY="558.0" mnemonicParsing="false" onAction="#queries_pathAction" prefHeight="28.0" prefWidth="152.0" text="Select Queries Path" />
+      <CheckBox fx:id="semantic_CheckBox" layoutX="300.0" layoutY="605.0" mnemonicParsing="false" onAction="#semanticAction" prefHeight="28.0" prefWidth="110.0" text="Semantic Treat" />
    </children>
 </AnchorPane>

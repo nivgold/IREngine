@@ -2,7 +2,6 @@ package View;
 
 import Model.Manager;
 import Model.communicator.ConfigReader;
-import Model.dataTypes.Query;
 import Model.dataTypes.ResultQuery;
 import Model.dataTypes.Term;
 import Model.preproccesing.Parse;
@@ -10,6 +9,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,7 +19,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import java.io.*;
 import java.util.*;
 
@@ -158,11 +157,15 @@ public class Controller {
         }
         else{
             try{
-                Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromPath();
-                for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : result.entrySet()){
-                    System.out.println(entry.getValue());
-                    System.out.println(entry.getValue().size());
+                if (semantic_CheckBox.isSelected()){
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Choose Online/Offline", new ButtonType("Online"), new ButtonType("Offline"));
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get().getText().equals("Online"))
+                        ConfigReader.setOnlineSemantic(true);
+                    else
+                        ConfigReader.setOnlineSemantic(false);
                 }
+                Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromPath();
                 //pop a new stage that showing the results
                 showQueryResult(result);
             }catch (Exception e){
@@ -191,6 +194,14 @@ public class Controller {
         }
         else{
             try{
+                if (semantic_CheckBox.isSelected()){
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Choose Online/Offline", new ButtonType("Online"), new ButtonType("Offline"));
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get().getText().equals("Online"))
+                        ConfigReader.setOnlineSemantic(true);
+                    else
+                        ConfigReader.setOnlineSemantic(false);
+                }
                 Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromText(search_TextField.getText());
                 // pop a new stage that showing the results
                 showQueryResult(result);
@@ -321,7 +332,6 @@ public class Controller {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 VBox vBox = new VBox(tableView);
                 Scene scene = new Scene(vBox);
                 dictionaryStage.setScene(scene);
@@ -332,6 +342,10 @@ public class Controller {
         }
     }
 
+    /**
+     * showing the query result stage
+     * @param results Map that maps every query to its result (relevant documents)
+     */
     private void showQueryResult(Map<String, List<Map.Entry<String, Double>>> results){
         Stage resultStage = new Stage();
         resultStage.setWidth(842);
@@ -344,6 +358,7 @@ public class Controller {
         column3.setCellValueFactory(new PropertyValueFactory<>("similarity"));
         TableColumn<String, ResultQuery> column4 = new TableColumn<>("Dominant Entities");
         column4.setCellValueFactory(new PropertyValueFactory<>("dominantEntities"));
+        column4.setVisible(false);
         tableView.getColumns().addAll(column1, column2, column3, column4);
 
         for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : results.entrySet()){
@@ -356,8 +371,60 @@ public class Controller {
                 tableView.getItems().add(new ResultQuery(queryID, docNO, similarity, dominantEntities));
             }
         }
-
-        VBox vBox = new VBox(tableView);
+        Button saveToFile = new Button();
+        saveToFile.setText("Save Results To Disk");
+        saveToFile.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File selectedDir = directoryChooser.showDialog(resultStage);
+                Set entrySet = results.entrySet();
+                List<Map.Entry<String, List<Map.Entry<String, Double>>>> sorted = new ArrayList<>(entrySet);
+                Collections.sort(sorted, new Comparator<Map.Entry<String, List<Map.Entry<String, Double>>>>() {
+                    @Override
+                    public int compare(Map.Entry<String, List<Map.Entry<String, Double>>> o1, Map.Entry<String, List<Map.Entry<String, Double>>> o2) {
+                        return o1.getKey().compareTo(o2.getKey());
+                    }
+                });
+                if (selectedDir != null) {
+                    String path = selectedDir.getAbsolutePath()+"\\result.txt";
+                    try {
+                        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path));
+                        int iter = 0;
+                        for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : sorted){
+                            String queryID = entry.getKey();
+                            int rank = 1;
+                            for (Map.Entry<String, Double> entry1 : entry.getValue()){
+                                String docNo = entry1.getKey();
+                                Double similarity = entry1.getValue();
+                                bufferedWriter.write(queryID+" "+iter+" "+docNo+" "+rank+" "+similarity+" NiSaf");
+                                bufferedWriter.newLine();
+                                rank++;
+                            }
+                            iter++;
+                        }
+                        bufferedWriter.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        CheckBox showEntities = new CheckBox();
+        showEntities.setText("Show Entities");
+        showEntities.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (showEntities.isSelected())
+                    column4.setVisible(true);
+                else
+                    column4.setVisible(false);
+            }
+        });
+        VBox vBox = new VBox();
+        vBox.getChildren().add(saveToFile);
+        vBox.getChildren().add(showEntities);
+        vBox.getChildren().add(tableView);
         Scene scene = new Scene(vBox);
         resultStage.setScene(scene);
         resultStage.initModality(Modality.APPLICATION_MODAL);

@@ -23,6 +23,7 @@ public class ConfigReader {
     public static String QUERIES_FILE_PATH;
     public static boolean STEMMING = false;
     public static boolean SEMANTIC_TREAT = false;
+    public static boolean ONLINE_SEMANTIC = false;
 
     /**
      * loading all the configurations from the config.properties to the fields of the class
@@ -87,6 +88,14 @@ public class ConfigReader {
      */
     public static void setSemantic(boolean semantic){
         SEMANTIC_TREAT = semantic;
+    }
+
+    /**
+     * updates the ONLINE_SEMANTIC field
+     * @param online updated online semantic treat option (true-online/false-offline)
+     */
+    public static void setOnlineSemantic(boolean online){
+        ONLINE_SEMANTIC = online;
     }
 
     /**

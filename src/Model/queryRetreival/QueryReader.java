@@ -31,7 +31,7 @@ public class QueryReader {
                     }
                     else if(line.contains("</top>")){
                         availableQueryID = Integer.parseInt(queryID);
-                        queries.add(new Query(queryID, queryText));
+                        queries.add(new Query(queryID, queryText+" "));
                         queryIDs.add(Integer.parseInt(queryID));
                     }
                     else{
@@ -42,6 +42,11 @@ public class QueryReader {
                         }
                         else if (line.startsWith("<title>")){
                             queryText = line.substring(7);
+                        }
+                        else if (line.startsWith("<desc>")){
+                            while (!(line = bufferedReader.readLine()).startsWith("<narr>")) {
+                                queryText += " " + line;
+                            }
                         }
                     }
                 }

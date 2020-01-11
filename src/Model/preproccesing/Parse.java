@@ -40,7 +40,7 @@ public class Parse{
     }
 
     public static double getAVDL(){
-        return ((double)docCounter.get()/totalDocLength.get());
+        return (totalDocLength.get()/(double)docCounter.get());
     }
 
     /**
@@ -1040,9 +1040,11 @@ public class Parse{
                 else{
                     if (currentLine.startsWith("<"))
                         continue;
-                    if (currentLine.startsWith("Article Type:BFN"))
+                    if (currentLine.startsWith("Article Type"))
                         continue;
                     if (currentLine.startsWith("Language:"))
+                        continue;
+                    if (currentLine.equals("BFN"))
                         continue;
                     stringBuilder.append(currentLine+"\n");
                 }

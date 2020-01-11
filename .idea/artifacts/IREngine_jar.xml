@@ -3,6 +3,8 @@
     <output-path>$PROJECT_DIR$/out/artifacts/IREngine_jar</output-path>
     <root id="archive" name="IREngine.jar">
       <element id="module-output" name="IREngine" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/resources/java-json.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/resources/medallia-word2vec-0.10.2-jar-with-dependencies.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

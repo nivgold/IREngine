@@ -30,6 +30,9 @@ public class Manager {
     private Map<String, List<String>> documentsEntityMap;
     private Map<String, DocumentDetails> documentDictionary;
 
+    /**
+     * creating the document-entity map that maps every document to its dominant entities
+     */
     private void createDocumentsEntityMap(){
         this.documentsEntityMap = new HashMap<>();
         Set entrySet = dictionary.entrySet();
@@ -96,25 +99,13 @@ public class Manager {
                 }
             }
         }
-
-        // save to disk
-        try{
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("D:\\entities.txt"));
-            for (Map.Entry<String, List<String>> entry : documentsEntityMap.entrySet()){
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("DocNo:");
-                stringBuilder.append(entry.getKey());
-                stringBuilder.append(" entities:");
-                stringBuilder.append(entry.getValue().toString());
-                bufferedWriter.write(stringBuilder.toString());
-                bufferedWriter.newLine();
-            }
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
+    /**
+     * returns the docNo Dominant Entities
+     * @param docNo That Represents The Documents ID
+     * @return String That Represents The docNo Dominant Entities
+     */
     public String getDocDominantEntities(String docNo){
         String result="";
         if (documentsEntityMap.containsKey(docNo)) {
@@ -127,6 +118,10 @@ public class Manager {
         return result;
     }
 
+    /**
+     * returns all the queries relevant documents
+     * @return Map that maps every query to its result (relevant documents)
+     */
     public Map<String, List<Map.Entry<String, Double>>> retrieveFromPath(){
         String path = ConfigReader.QUERIES_FILE_PATH;
         HashMap<String, List<Map.Entry<String, Double>>> results = new HashMap<>();
@@ -142,7 +137,6 @@ public class Manager {
 
     public Map<String, List<Map.Entry<String, Double>>> retrieveFromText(String text){
         Map<String, List<Map.Entry<String, Double>>> result = new HashMap<>();
-        System.out.println(text);
         QueryReader queryReader = new QueryReader();
         Searcher searcher = new Searcher();
         Query query = queryReader.makeQuery(text);
@@ -277,8 +271,10 @@ public class Manager {
 
         System.out.println("loading document dictionary");
         loadDocumentDictionary();
+        System.out.println("Done");
         System.out.println("creating document entity map");
         createDocumentsEntityMap();
+        System.out.println("Done");
     }
 
     /**

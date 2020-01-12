@@ -7,6 +7,7 @@ import Model.dataTypes.DocumentDetails;
 import Model.dataTypes.Query;
 import Model.dataTypes.TermDetails;
 import Model.preproccesing.Parse;
+import Model.preproccesing.Stemmer;
 import com.medallia.word2vec.Word2VecModel;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +41,7 @@ public class Searcher {
                 onlineSemanticTreat(queryTerms, query);
             else
                 offlineSemanticTreat(queryTerms, query);
+            removeDuplicates(queryTerms);
             Collections.sort(queryTerms, new Comparator<Map.Entry<String, AllTermDocs>>() {
                 @Override
                 public int compare(Map.Entry<String, AllTermDocs> o1, Map.Entry<String, AllTermDocs> o2) {
@@ -55,6 +57,24 @@ public class Searcher {
             relevantDocuments.add(retrievedDocuments.get(i));
         }
         return relevantDocuments;
+    }
+
+    /**
+     * removing the duplicates from all the query terms
+     * @param queryTerms query parsed terms with the added word from the semantic treat
+     */
+    private void removeDuplicates(ArrayList<Map.Entry<String, AllTermDocs>> queryTerms) {
+        Set<String> terms = new HashSet<>();
+        Iterator iterator = queryTerms.iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, AllTermDocs> entry = (Map.Entry<String, AllTermDocs>) iterator.next();
+            if (terms.contains(entry.getKey())){
+                iterator.remove();
+            }
+            else{
+                terms.add(entry.getKey().toLowerCase());
+            }
+        }
     }
 
     /**
@@ -88,15 +108,19 @@ public class Searcher {
                     for (int i=0; i<Math.min(10, jsonArray.length()); i++){
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String word = jsonObject.getString("word");
-                        if (word.equals(term))
-                            continue;
                         if (word.contains(" "))
                             word = word.toUpperCase()+" ";
-                        if (addedWords.containsKey(word)){
-                            addedWords.get(word).addTermDetails(query.getQueryID());
+                        else{
+                            Stemmer stemmer = new Stemmer();
+                            stemmer.add(word.toLowerCase().toCharArray(), word.length());
+                            stemmer.stem();
+                            word = stemmer.toString();
                         }
-                        else
-                            addedWords.put(word, new AllTermDocs(query.getQueryID()));
+                        if (word.equalsIgnoreCase(term)) {
+                            continue;
+                        }
+
+                        addedWords.put(word, new AllTermDocs(query.getQueryID()));
                     }
                 }
             } catch (IOException e) {
@@ -130,20 +154,22 @@ public class Searcher {
 
                 for(com.medallia.word2vec.Searcher.Match match : matches){
                     String word = match.match();
-                    if (word.equals(term))
+                    if (ConfigReader.STEMMING){
+                        Stemmer stemmer = new Stemmer();
+                        stemmer.add(word.toLowerCase().toCharArray(), word.length());
+                        stemmer.stem();
+                        word = stemmer.toString();
+                    }
+                    if (word.equalsIgnoreCase(term))
                         continue;
                     if (word.contains(" "))
                         word = word.toUpperCase()+" ";
-                    if (addedWords.containsKey(word)){
-                        addedWords.get(word).addTermDetails(query.getQueryID());
-                    }
-                    else
-                        addedWords.put(word, new AllTermDocs(query.getQueryID()));
+
+                    addedWords.put(word, new AllTermDocs(query.getQueryID()));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (com.medallia.word2vec.Searcher.UnknownWordException e){
-                System.out.println("Didnt find the word");
             }
         }
 

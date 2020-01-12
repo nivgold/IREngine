@@ -31,6 +31,7 @@ public class Controller {
     private StringProperty postingPath = new SimpleStringProperty("set path");
     private StringProperty queriesPath = new SimpleStringProperty("set path");
     private Manager manager;
+    private boolean isResultFileExist = false;
 
     @FXML
     private Button start_Button;
@@ -150,7 +151,7 @@ public class Controller {
      * @param actionEvent an ActionEvent associated with the 'query file path run' Button
      */
     public void queries_path_runAction(ActionEvent actionEvent){
-        if (queriesPath.get().equals("set path") || corpusPath.get().equals("set path") || postingPath.get().equals("set path")){
+        if (queriesPath.get().equals("set path") || postingPath.get().equals("set path")){
             // pop an error dialog
             Alert alert = new Alert(Alert.AlertType.ERROR, "Not All Parameters Were Set");
             alert.show();
@@ -181,8 +182,7 @@ public class Controller {
      * @param actionEvent an ActionEvent associated with the 'search run' Button
      */
     public void search_runAction(ActionEvent actionEvent){
-        long start = System.nanoTime();
-        if (corpusPath.get().equals("set path") || postingPath.get().equals("set path") || search_TextField.getText()==""){
+        if (postingPath.get().equals("set path") || search_TextField.getText()==""){
             // pop an error dialog
             Alert alert = new Alert(Alert.AlertType.ERROR, "Not All Parameters Were Set");
             alert.show();
@@ -249,19 +249,27 @@ public class Controller {
      */
     public void resetAction(ActionEvent actionEvent){
         if (postingPath.get().equals("set path")){
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Posting Path Not Specified");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Posting Path Not Specified");
             alert.show();
         }
         else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Are Your Sure?");
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK) {
-                File postingDir = new File(ConfigReader.POSTING_DIR_PATH);
-                deleteDirectory(postingDir);
-                postingDir.mkdirs();
+            File postingDir = new File(ConfigReader.POSTING_DIR_PATH);
+            if (postingDir.listFiles().length==0){
+                // empty
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Directory Is Empty");
+                alert.show();
             }
-            this.manager = null;
+            else{
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Are Your Sure?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    deleteDirectory(postingDir);
+                    postingDir.mkdirs();
+                }
+                this.manager = null;
+            }
+
         }
     }
 
@@ -361,7 +369,15 @@ public class Controller {
         column4.setVisible(false);
         tableView.getColumns().addAll(column1, column2, column3, column4);
 
-        for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : results.entrySet()){
+        List<Map.Entry<String, List<Map.Entry<String, Double>>>> sorted = new ArrayList<>(results.entrySet());
+        Collections.sort(sorted, new Comparator<Map.Entry<String, List<Map.Entry<String, Double>>>>() {
+            @Override
+            public int compare(Map.Entry<String, List<Map.Entry<String, Double>>> o1, Map.Entry<String, List<Map.Entry<String, Double>>> o2) {
+                return o1.getKey().compareTo(o2.getKey());
+            }
+        });
+
+        for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : sorted){
             String queryID = entry.getKey();
             List<Map.Entry<String, Double>> relevantDocuments = entry.getValue();
             for (Map.Entry<String, Double> document : relevantDocuments){
@@ -389,7 +405,14 @@ public class Controller {
                 if (selectedDir != null) {
                     String path = selectedDir.getAbsolutePath()+"\\result.txt";
                     try {
-                        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path));
+                        BufferedWriter bufferedWriter;
+                        if (isResultFileExist)
+                            bufferedWriter = new BufferedWriter(new FileWriter(path, true));
+                        else {
+                            bufferedWriter = new BufferedWriter(new FileWriter(path));
+                            isResultFileExist = true;
+                        }
+
                         int iter = 0;
                         for (Map.Entry<String, List<Map.Entry<String, Double>>> entry : sorted){
                             String queryID = entry.getKey();

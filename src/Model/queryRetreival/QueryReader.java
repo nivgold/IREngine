@@ -9,12 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class QueryReader {
-    private HashSet<Integer> queryIDs;
-    private int availableQueryID;
-    public QueryReader() {
-        queryIDs = new HashSet<>();
-        availableQueryID = 0;
-    }
+    private static HashSet<Integer> queryIDs = new HashSet<>();
+    private static int availableQueryID = 0;
 
     public Set<Query> extractQueriesFromPath(String path){
         Set<Query> queries = new HashSet<>();
@@ -61,6 +57,7 @@ public class QueryReader {
     public Query makeQuery(String text){
         while (queryIDs.contains(availableQueryID))
             availableQueryID++;
+        queryIDs.add(availableQueryID);
         text = " "+text+" ";
         return new Query(availableQueryID+"", text);
     }

@@ -18,7 +18,7 @@ public class ConfigReader {
     public static String BATCH_PRE_POSTING_DIR_PATH;
     public static String FINAL_POSTING_FILE_PATH;
     public static String INVERTED_DICTIONARY_FILE_PATH;
-    public static String STOP_WORDS_FILE_PATH;
+    public static String STOP_WORDS_FILE_PATH = "resources\\05 stop_words.txt";
     public static String DOCUMENT_POSTING_PATH;
     public static String QUERIES_FILE_PATH;
     public static boolean STEMMING = false;

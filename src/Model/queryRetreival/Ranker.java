@@ -12,8 +12,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+//Best results so far were 1.5 , 3
 public class Ranker {
-    private final double k = 1.5;
+    private final double k = 1.2;//changed
     private final double b = 0.75;
     private final double BM25_WEIGHT = 1;
     private Map<String, Double> innerProductSimilarityMap;
@@ -50,7 +51,15 @@ public class Ranker {
                 TermDetails termDetails = dictionary.get(term);
                 AllTermDocs allTermDocs = entry.getValue();
                 int termQueryTF = allTermDocs.getTermTFInBatch();
+                //added
+                if(termQueryTF>1){
+                    termQueryTF *= 1.5;
+                }
+                //added
                 double normalizedQueryTF = ((double)termQueryTF/maxQueryTF);
+                if(term.equals(term.toUpperCase())){
+                    normalizedQueryTF *= 3;
+                }
                 double df = termDetails.getDF();
                 double idf = Math.log10(Parse.docCounter.get()/df);
                 int postingPointer = Integer.parseInt(termDetails.getPostingPointer());
@@ -61,8 +70,8 @@ public class Ranker {
                     postingValue = bufferedReader.readLine();
                 }
                 currentLineIndex++;
-                // update the similarity map
 
+                // update the similarity map
                 updateSimilarityMap(postingValue, idf, documentDictionary, normalizedQueryTF, df);
             }
             bufferedReader.close();

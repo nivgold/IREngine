@@ -105,16 +105,18 @@ public class Searcher {
                     bufferedReader.close();
 
                     JSONArray jsonArray = new JSONArray(stringBuilder.toString());
-                    for (int i=0; i<Math.min(10, jsonArray.length()); i++){
+                    for (int i=0; i<Math.min(3, jsonArray.length()); i++){
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String word = jsonObject.getString("word");
                         if (word.contains(" "))
                             word = word.toUpperCase()+" ";
                         else{
-                            Stemmer stemmer = new Stemmer();
-                            stemmer.add(word.toLowerCase().toCharArray(), word.length());
-                            stemmer.stem();
-                            word = stemmer.toString();
+                            if (ConfigReader.STEMMING) {
+                                Stemmer stemmer = new Stemmer();
+                                stemmer.add(word.toLowerCase().toCharArray(), word.length());
+                                stemmer.stem();
+                                word = stemmer.toString();
+                            }
                         }
                         if (word.equalsIgnoreCase(term)) {
                             continue;
@@ -149,7 +151,7 @@ public class Searcher {
                 Word2VecModel model = Word2VecModel.fromTextFile(new File("resources\\word2vec.c.output.model.txt"));
                 com.medallia.word2vec.Searcher semanticSearcher = model.forSearch();
 
-                int amountOfResults = 4;
+                int amountOfResults = 3;
                 List<com.medallia.word2vec.Searcher.Match> matches = semanticSearcher.getMatches(term, amountOfResults);
 
                 for(com.medallia.word2vec.Searcher.Match match : matches){

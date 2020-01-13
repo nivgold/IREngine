@@ -13,10 +13,13 @@ import java.io.IOException;
 import java.util.*;
 //Best for stemming k=1, b=0.75 termQuery>2 186
 //Best without stemming k=1 b=0.75 176
-//Best for stemming and offline k=1 b=0.75 147
+//Best for stemming and offline k=1 b=0.75 170
+//Best for stemming and online k=1 b=0.75 171
+//Best without stemming and offline k=1 b=0.75 172
+//Best without stemming and online k=1 b=0.75 168
 //Best results so far were 1.5 , 3
 public class Ranker {
-    private final double k = 1.5;//changed
+    private final double k = 1;//changed
     private final double b = 0.75;
     private final double BM25_WEIGHT = 0.8;
     private Map<String, Double> innerProductSimilarityMap;

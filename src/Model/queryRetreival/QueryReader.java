@@ -17,13 +17,13 @@ public class QueryReader {
         try {
             FileReader fileReader = new FileReader(path);
             String queryID="";
-            String queryText="";
+            StringBuilder queryText = new StringBuilder();
             try(BufferedReader bufferedReader = new BufferedReader(fileReader)){
                 String line;
                 while ((line = bufferedReader.readLine())!=null){
                     if (line.contains("<top>")){
                         queryID="";
-                        queryText="";
+                        queryText = new StringBuilder();
                     }
                     else if(line.contains("</top>")){
                         availableQueryID = Integer.parseInt(queryID);
@@ -37,13 +37,17 @@ public class QueryReader {
                             queryID = queryID.replaceAll(" ","");
                         }
                         else if (line.startsWith("<title>")){
-                            queryText = line.substring(7);
-                        }
-                        else if (line.startsWith("<desc>")){
-                            while (!(line = bufferedReader.readLine()).startsWith("<narr>")) {
-                                queryText += " " + line;
+                            queryText.append(line.substring(7));
+                            while (!(line=bufferedReader.readLine()).equals("</top>")){
+                                if (line.startsWith("<desc>") || line.startsWith("<narr>"))
+                                    continue;
+                                queryText.append(" "+line);
                             }
+                            availableQueryID = Integer.parseInt(queryID);
+                            queries.add(new Query(queryID, queryText.toString()+" "));
+                            queryIDs.add(Integer.parseInt(queryID));
                         }
+
                     }
                 }
             }

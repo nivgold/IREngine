@@ -1,18 +1,15 @@
 package Model;
 
 import Model.communicator.ConfigReader;
-import Model.dataTypes.Document;
 import Model.dataTypes.DocumentDetails;
 import Model.dataTypes.Query;
 import Model.dataTypes.TermDetails;
 import Model.index.Indexer;
 import Model.index.InvertedIndexCreator;
 import Model.preproccesing.Parse;
-import Model.preproccesing.ReadFile;
 import Model.queryRetreival.QueryReader;
 import Model.queryRetreival.Searcher;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

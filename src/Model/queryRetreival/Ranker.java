@@ -11,12 +11,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-
+//Best for stemming k=1, b=0.75 termQuery>2 186
+//Best without stemming k=1 b=0.75 176
+//Best for stemming and offline k=1 b=0.75 147
 //Best results so far were 1.5 , 3
 public class Ranker {
-    private final double k = 1.2;//changed
+    private final double k = 1.5;//changed
     private final double b = 0.75;
-    private final double BM25_WEIGHT = 1;
+    private final double BM25_WEIGHT = 0.8;
     private Map<String, Double> innerProductSimilarityMap;
     private Map<String, Double> BM25SimilarityMap;
 
@@ -51,12 +53,16 @@ public class Ranker {
                 TermDetails termDetails = dictionary.get(term);
                 AllTermDocs allTermDocs = entry.getValue();
                 int termQueryTF = allTermDocs.getTermTFInBatch();
+
                 //added
-                if(termQueryTF>1){
+                if(termQueryTF>2){
                     termQueryTF *= 1.5;
                 }
+
+
                 //added
                 double normalizedQueryTF = ((double)termQueryTF/maxQueryTF);
+
                 if(term.equals(term.toUpperCase())){
                     normalizedQueryTF *= 3;
                 }

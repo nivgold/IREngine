@@ -149,7 +149,7 @@ public class Searcher {
                 Word2VecModel model = Word2VecModel.fromTextFile(new File("resources\\word2vec.c.output.model.txt"));
                 com.medallia.word2vec.Searcher semanticSearcher = model.forSearch();
 
-                int amountOfResults = 11;
+                int amountOfResults = 4;
                 List<com.medallia.word2vec.Searcher.Match> matches = semanticSearcher.getMatches(term, amountOfResults);
 
                 for(com.medallia.word2vec.Searcher.Match match : matches){

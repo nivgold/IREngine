@@ -21,6 +21,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * this class represent a way to retrieve the 50 most relevant documents for a given query
+ */
 public class Searcher {
     /**
      * search for the most 50 relevant documents for the given query
@@ -35,22 +38,7 @@ public class Searcher {
         parse.parseQuery(query);
         ArrayList<Map.Entry<String, AllTermDocs>> queryTerms = parse.getTermDocsMap();
 
-        // semantic treat
-        if (ConfigReader.SEMANTIC_TREAT){
-            if (ConfigReader.ONLINE_SEMANTIC)
-                onlineSemanticTreat(queryTerms, query);
-            else
-                offlineSemanticTreat(queryTerms, query);
-            removeDuplicates(queryTerms);
-            Collections.sort(queryTerms, new Comparator<Map.Entry<String, AllTermDocs>>() {
-                @Override
-                public int compare(Map.Entry<String, AllTermDocs> o1, Map.Entry<String, AllTermDocs> o2) {
-                    return o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
-                }
-            });
-        }
-
-        List<Map.Entry<String, Double>> retrievedDocuments = ranker.rank(queryTerms, dictionary, documentDictionary);
+        List<Map.Entry<String, Double>> retrievedDocuments = ranker.rank(queryTerms, dictionary, documentDictionary, query.getQueryID());
         List<Map.Entry<String, Double>> relevantDocuments = new ArrayList<>();
 
         for (int i=0; i<Math.min(50, retrievedDocuments.size()); i++){
@@ -59,126 +47,5 @@ public class Searcher {
         return relevantDocuments;
     }
 
-    /**
-     * removing the duplicates from all the query terms
-     * @param queryTerms query parsed terms with the added word from the semantic treat
-     */
-    private void removeDuplicates(ArrayList<Map.Entry<String, AllTermDocs>> queryTerms) {
-        Set<String> terms = new HashSet<>();
-        Iterator iterator = queryTerms.iterator();
-        while (iterator.hasNext()){
-            Map.Entry<String, AllTermDocs> entry = (Map.Entry<String, AllTermDocs>) iterator.next();
-            if (terms.contains(entry.getKey())){
-                iterator.remove();
-            }
-            else{
-                terms.add(entry.getKey().toLowerCase());
-            }
-        }
-    }
-
-    /**
-     * adding related semantic words to the query parsed terms with an online service
-     * we used the 'data-muse' API
-     * @param queryTerms represent the query parsed terms
-     * @param query represent the given query
-     */
-    private void onlineSemanticTreat(ArrayList<Map.Entry<String, AllTermDocs>> queryTerms, Query query) {
-        Map<String, AllTermDocs> addedWords = new HashMap<>();
-        for (Map.Entry<String, AllTermDocs> entry : queryTerms){
-            String term = entry.getKey();
-            try {
-                term = term.replaceAll(" ", "+");
-                String urlString = "https://api.datamuse.com/words?ml=" + term;
-                URL url = new URL(urlString);
-                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0");
-                int responseCode = httpURLConnection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK){
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                    String currentLine;
-                    StringBuilder stringBuilder = new StringBuilder();
-                    while ((currentLine=bufferedReader.readLine())!=null){
-                        stringBuilder.append(currentLine);
-                    }
-                    bufferedReader.close();
-
-                    JSONArray jsonArray = new JSONArray(stringBuilder.toString());
-                    for (int i=0; i<Math.min(3, jsonArray.length()); i++){
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        String word = jsonObject.getString("word");
-                        if (word.contains(" "))
-                            word = word.toUpperCase()+" ";
-                        else{
-                            if (ConfigReader.STEMMING) {
-                                Stemmer stemmer = new Stemmer();
-                                stemmer.add(word.toLowerCase().toCharArray(), word.length());
-                                stemmer.stem();
-                                word = stemmer.toString();
-                            }
-                        }
-                        if (word.equalsIgnoreCase(term)) {
-                            continue;
-                        }
-
-                        addedWords.put(word, new AllTermDocs(query.getQueryID()));
-                    }
-                }
-            } catch (IOException e) {
-                System.out.println("HTTP GET message didnt work on term:"+term);
-            } catch (JSONException e) {
-                System.out.println("Invalid JSON from term:"+term);
-            }
-        }
-
-        // adding the addedWord to the queryTerms
-        for (Map.Entry<String, AllTermDocs> entry : addedWords.entrySet()){
-            queryTerms.add(entry);
-        }
-    }
-
-    /**
-     * adding related semantic words to the query parsed terms with an offline service
-     * @param queryTerms represent the query parsed terms
-     * @param query represent the given query
-     */
-    private void offlineSemanticTreat(ArrayList<Map.Entry<String, AllTermDocs>> queryTerms, Query query){
-        Map<String, AllTermDocs> addedWords = new HashMap<>();
-        for (Map.Entry<String, AllTermDocs> entry : queryTerms){
-            String term = entry.getKey();
-            try {
-                Word2VecModel model = Word2VecModel.fromTextFile(new File("resources\\word2vec.c.output.model.txt"));
-                com.medallia.word2vec.Searcher semanticSearcher = model.forSearch();
-
-                int amountOfResults = 3;
-                List<com.medallia.word2vec.Searcher.Match> matches = semanticSearcher.getMatches(term, amountOfResults);
-
-                for(com.medallia.word2vec.Searcher.Match match : matches){
-                    String word = match.match();
-                    if (ConfigReader.STEMMING){
-                        Stemmer stemmer = new Stemmer();
-                        stemmer.add(word.toLowerCase().toCharArray(), word.length());
-                        stemmer.stem();
-                        word = stemmer.toString();
-                    }
-                    if (word.equalsIgnoreCase(term))
-                        continue;
-                    if (word.contains(" "))
-                        word = word.toUpperCase()+" ";
-
-                    addedWords.put(word, new AllTermDocs(query.getQueryID()));
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (com.medallia.word2vec.Searcher.UnknownWordException e){
-            }
-        }
-
-        // adding the addedWord to the queryTerms
-        for (Map.Entry<String, AllTermDocs> entry : addedWords.entrySet()){
-            queryTerms.add(entry);
-        }
-    }
 
 }

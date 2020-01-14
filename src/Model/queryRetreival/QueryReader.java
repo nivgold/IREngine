@@ -8,10 +8,18 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * this class represent a way to read a query from path and from free text
+ */
 public class QueryReader {
     private static HashSet<Integer> queryIDs = new HashSet<>();
     private static int availableQueryID = 0;
 
+    /**
+     * reading a queries path and returns the query in a correct form
+     * @param path the path to the queries file
+     * @return Set of Query
+     */
     public Set<Query> extractQueriesFromPath(String path){
         Set<Query> queries = new HashSet<>();
         try {
@@ -58,6 +66,11 @@ public class QueryReader {
         return queries;
     }
 
+    /**
+     * converting the free text to ta Query class
+     * @param text query free text
+     * @return Query that represent the given query free text
+     */
     public Query makeQuery(String text){
         while (queryIDs.contains(availableQueryID))
             availableQueryID++;

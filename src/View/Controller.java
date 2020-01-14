@@ -156,15 +156,23 @@ public class Controller {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Not All Parameters Were Set");
             alert.show();
         }
+        else if (!this.manager.hasDictionary()){
+            // pop en error dialog
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Was Found");
+            alert.show();
+        }
         else{
             try{
                 if (semantic_CheckBox.isSelected()){
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Choose Online/Offline", new ButtonType("Online"), new ButtonType("Offline"));
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Choose Online/Offline", new ButtonType("Online"), new ButtonType("Offline"), new ButtonType("Exit"));
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get().getText().equals("Online"))
                         ConfigReader.setOnlineSemantic(true);
-                    else
+                    else if (result.get().getText().equals("Offline"))
                         ConfigReader.setOnlineSemantic(false);
+                    else{
+                        return;
+                    }
                 }
                 Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromPath();
                 //pop a new stage that showing the results
@@ -187,7 +195,7 @@ public class Controller {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Not All Parameters Were Set");
             alert.show();
         }
-        else if (!this.manager.hasDictioanry()){
+        else if (!this.manager.hasDictionary()){
             // pop en error dialog
             Alert alert = new Alert(Alert.AlertType.ERROR, "No Dictionary Was Found");
             alert.show();
@@ -195,12 +203,15 @@ public class Controller {
         else{
             try{
                 if (semantic_CheckBox.isSelected()){
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Choose Online/Offline", new ButtonType("Online"), new ButtonType("Offline"));
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Choose Online/Offline", new ButtonType("Online"), new ButtonType("Offline"), new ButtonType("Exit"));
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get().getText().equals("Online"))
                         ConfigReader.setOnlineSemantic(true);
-                    else
+                    else if (result.get().getText().equals("Offline"))
                         ConfigReader.setOnlineSemantic(false);
+                    else{
+                        return;
+                    }
                 }
                 Map<String, List<Map.Entry<String, Double>>> result = this.manager.retrieveFromText(search_TextField.getText());
                 // pop a new stage that showing the results

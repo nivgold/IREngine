@@ -127,20 +127,30 @@ public class Manager {
         Set<Query> queries = queryReader.extractQueriesFromPath(path);
         for (Query query : queries) {
             results.put(query.getQueryID(), searcher.search(query, dictionary, documentDictionary));
+            System.out.println("QueryID: "+query.getQueryID()+" Done.");
         }
 
         return results;
     }
 
+    /**
+     * retrieving the relevant documents for the query
+     * @param text query free text
+     * @return 50 most relevant documents for the free text query
+     */
     public Map<String, List<Map.Entry<String, Double>>> retrieveFromText(String text){
         Map<String, List<Map.Entry<String, Double>>> result = new HashMap<>();
         QueryReader queryReader = new QueryReader();
         Searcher searcher = new Searcher();
         Query query = queryReader.makeQuery(text);
         result.put(query.getQueryID(), searcher.search(query, dictionary, documentDictionary));
+        System.out.println("QueryID: "+query.getQueryID()+" Done.");
         return result;
     }
 
+    /**
+     * loading the document dictionary from the document postings
+     */
     private void loadDocumentDictionary(){
         this.documentDictionary = new HashMap<>();
         int totalDocLength = 0;
@@ -286,7 +296,7 @@ public class Manager {
      * telling whether there is a loaded dictionary or not
      * @return true if dictionary is not null and false if it is null
      */
-    public boolean hasDictioanry(){
+    public boolean hasDictionary(){
         if (this.dictionary==null)
             return false;
         return true;

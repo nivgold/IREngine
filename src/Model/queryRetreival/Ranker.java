@@ -224,11 +224,7 @@ public class Ranker {
             double termDocumentTF = Double.parseDouble(document.substring(document.indexOf(':')+1));
             double documentMaxTF = documentDictionary.get(docNo).getMaxTF();
 
-            //double queryWeight = normalizedQueryTF * idf;
-            //double documentWeight = ((termDocumentTF / documentMaxTF) * idf);
             double queryWeight = normalizedQueryTF;
-            //TODO: documentWeight - try with /documentTF
-            //double documentWeight = termDocumentTF;
             double documentWeight = termDocumentTF;
             double innerProductValue = (documentWeight*idf)*(queryWeight*idf);
 

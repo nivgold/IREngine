@@ -66,6 +66,10 @@ public class ReadFile{
         }
     }
 
+    /**
+     * return's all of the read documents from the batch
+     * @return Set of all the read documents
+     */
     public Set<String> getResult() {
         return result;
     }

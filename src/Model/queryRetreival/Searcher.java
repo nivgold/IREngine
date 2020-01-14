@@ -1,24 +1,11 @@
 package Model.queryRetreival;
 
 import Model.Utils;
-import Model.communicator.ConfigReader;
 import Model.dataTypes.AllTermDocs;
 import Model.dataTypes.DocumentDetails;
 import Model.dataTypes.Query;
 import Model.dataTypes.TermDetails;
 import Model.preproccesing.Parse;
-import Model.preproccesing.Stemmer;
-import com.medallia.word2vec.Word2VecModel;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -46,6 +33,4 @@ public class Searcher {
         }
         return relevantDocuments;
     }
-
-
 }

@@ -1,7 +1,6 @@
 package Model;
 
 import Model.communicator.ConfigReader;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -9,6 +8,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * class that suggest services that everybody can use
+ */
 public class Utils {
     private static final String STOP_WORDS_PATH = ConfigReader.STOP_WORDS_FILE_PATH;
 

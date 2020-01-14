@@ -3,7 +3,6 @@ package Model.queryRetreival;
 import Model.communicator.ConfigReader;
 import Model.dataTypes.AllTermDocs;
 import Model.dataTypes.DocumentDetails;
-import Model.dataTypes.Query;
 import Model.dataTypes.TermDetails;
 import Model.preproccesing.Parse;
 import Model.preproccesing.Stemmer;
@@ -11,15 +10,15 @@ import com.medallia.word2vec.Word2VecModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-//Best for stemming k=1, b=0.75 termQuery>2 186
+
+//Best for stemming k=1, b=0.75 termQuery>2 186   207
 //Best without stemming k=1 b=0.75 176
-//Best for stemming and offline k=1 b=0.75 170
-//Best for stemming and online k=1 b=0.75 171
+//Best for stemming and offline k=1 b=0.75 170    198
+//Best for stemming and online k=1 b=0.75 171     185
 //Best without stemming and offline k=1 b=0.75 172
 //Best without stemming and online k=1 b=0.75 168
 //Best results so far were 1.5 , 3
@@ -30,7 +29,7 @@ import java.util.*;
 public class Ranker {
     private final double k = 1;
     private final double b = 0.75;
-    private final double BM25_WEIGHT = 0.8;
+    private final double BM25_WEIGHT = 0.95;
     private Map<String, Double> innerProductSimilarityMap;
     private Map<String, Double> BM25SimilarityMap;
 
@@ -104,6 +103,8 @@ public class Ranker {
         // normalize the inner product similarity value
         normalizeInnerProductSimilarity(documentDictionary, queryLength);
 
+        activateFunctionOnSimilarity();
+
         Map<String, Double> similarityMap = new HashMap<>();
         for (String docNo : BM25SimilarityMap.keySet()){
             double combinedSimilarity = BM25_WEIGHT*BM25SimilarityMap.get(docNo)+(1-BM25_WEIGHT)*innerProductSimilarityMap.get(docNo);
@@ -112,6 +113,33 @@ public class Ranker {
 
         // return sorted documents by their similarity value
         return sortRelevantDocuments(similarityMap);
+    }
+
+    private void activateFunctionOnSimilarity() {
+        Set entrySet = BM25SimilarityMap.entrySet();
+        ArrayList<Map.Entry<String, Double>> maxList = new ArrayList<>(entrySet);
+        double maxBM25 = Collections.max(maxList, new Comparator<Map.Entry<String, Double>>() {
+            @Override
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        }).getValue();
+        entrySet = innerProductSimilarityMap.entrySet();
+        maxList = new ArrayList<>(entrySet);
+        double maxInnerProduct = Collections.max(maxList, new Comparator<Map.Entry<String, Double>>() {
+            @Override
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        }).getValue();
+        for (Map.Entry<String, Double> entry : BM25SimilarityMap.entrySet()){
+            BM25SimilarityMap.put(entry.getKey(), entry.getValue()/maxBM25);
+
+        }
+
+        for (Map.Entry<String, Double> entry : innerProductSimilarityMap.entrySet()){
+            innerProductSimilarityMap.put(entry.getKey(), entry.getValue()/maxInnerProduct);
+        }
     }
 
     /**
@@ -195,6 +223,7 @@ public class Ranker {
             //double queryWeight = normalizedQueryTF * idf;
             //double documentWeight = ((termDocumentTF / documentMaxTF) * idf);
             double queryWeight = normalizedQueryTF;
+            //TODO: documentWeight - try with /documentTF
             double documentWeight = termDocumentTF;
             double innerProductValue = (documentWeight*idf)*(queryWeight*idf);
 

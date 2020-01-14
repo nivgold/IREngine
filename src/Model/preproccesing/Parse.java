@@ -39,6 +39,10 @@ public class Parse{
         this.stop_words = stop_words;
     }
 
+    /**
+     * return's the avdl value of the corpus
+     * @return the avdl value of the corpus
+     */
     public static double getAVDL(){
         return (totalDocLength.get()/(double)docCounter.get());
     }
@@ -59,6 +63,10 @@ public class Parse{
         return sortedTerms;
     }
 
+    /**
+     * parsing the given query
+     * @param query the given query
+     */
     public void parseQuery(Query query){
         Document document = new Document(query.getQueryID(), query.getQueryText());
         numbers(document);

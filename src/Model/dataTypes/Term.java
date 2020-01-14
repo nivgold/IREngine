@@ -1,7 +1,7 @@
 package Model.dataTypes;
 
 /**
- * data structure that was build in order to support the tableView view in the GUI
+ * data structure that was build in order to support the tableView view in the GUI for the final inverted index dictionary
  */
 public class Term {
     private String value;

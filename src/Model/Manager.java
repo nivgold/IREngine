@@ -125,10 +125,17 @@ public class Manager {
         QueryReader queryReader = new QueryReader();
         Searcher searcher = new Searcher();
         Set<Query> queries = queryReader.extractQueriesFromPath(path);
+        long start = System.nanoTime();
         for (Query query : queries) {
+            long startQ = System.nanoTime();
             results.put(query.getQueryID(), searcher.search(query, dictionary, documentDictionary));
-            System.out.println("QueryID: "+query.getQueryID()+" Done.");
+            long endQ = System.nanoTime();
+            double totalQ = (endQ - startQ)/1000000000.0;
+            System.out.println("QueryID: "+query.getQueryID()+" Done. time:"+totalQ);
         }
+        long end = System.nanoTime();
+        double total = (end - start)/1000000000.0;
+        System.out.println("total time for whole file: "+total);
 
         return results;
     }
@@ -143,8 +150,11 @@ public class Manager {
         QueryReader queryReader = new QueryReader();
         Searcher searcher = new Searcher();
         Query query = queryReader.makeQuery(text);
+        long start = System.nanoTime();
         result.put(query.getQueryID(), searcher.search(query, dictionary, documentDictionary));
-        System.out.println("QueryID: "+query.getQueryID()+" Done.");
+        long end = System.nanoTime();
+        double total = (end - start)/1000000000.0;
+        System.out.println("QueryID: "+query.getQueryID()+" Done. time:"+total);
         return result;
     }
 

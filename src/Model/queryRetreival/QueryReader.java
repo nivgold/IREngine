@@ -1,7 +1,6 @@
 package Model.queryRetreival;
 
 import Model.dataTypes.Query;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -50,15 +49,12 @@ public class QueryReader {
                             while (!(line=bufferedReader.readLine()).equals("</top>")){
                                 if (line.startsWith("<desc>") || line.startsWith("<narr>"))
                                     continue;
+
                                 if (line.contains("non-relevant") || line.contains("not relevant"))
                                     continue;
-                                line = line.replace("Chunnel", "Channel");
-                                line = line.replace("document", "");
-                                line = line.replace("relevant", "");
-                                line = line.replace("discussing", "");
-                                line = line.replace("Documents", "");
-                                line = line.replace("Relevant", "");
 
+                                line = line.replace("Chunnel", "Channel");
+                                line = line.replaceAll("document|Document|relevant|Relevant|discussing", "");
                                 queryText.append(" "+line);
                             }
                             availableQueryID = Integer.parseInt(queryID);

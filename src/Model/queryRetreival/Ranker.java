@@ -103,6 +103,7 @@ public class Ranker {
         // normalize the inner product similarity value
         normalizeInnerProductSimilarity(documentDictionary, queryLength);
 
+        // scaling the similarities
         activateFunctionOnSimilarity();
 
         Map<String, Double> similarityMap = new HashMap<>();
@@ -115,6 +116,9 @@ public class Ranker {
         return sortRelevantDocuments(similarityMap);
     }
 
+    /**
+     * scaling both the BM25 similarity and the Inner Product similarity
+     */
     private void activateFunctionOnSimilarity() {
         Set entrySet = BM25SimilarityMap.entrySet();
         ArrayList<Map.Entry<String, Double>> maxList = new ArrayList<>(entrySet);
@@ -224,6 +228,7 @@ public class Ranker {
             //double documentWeight = ((termDocumentTF / documentMaxTF) * idf);
             double queryWeight = normalizedQueryTF;
             //TODO: documentWeight - try with /documentTF
+            //double documentWeight = termDocumentTF;
             double documentWeight = termDocumentTF;
             double innerProductValue = (documentWeight*idf)*(queryWeight*idf);
 
@@ -265,7 +270,7 @@ public class Ranker {
 
     /**
      * adding related semantic words to the query parsed terms with an online service
-     * we used the 'data-muse' API
+     * we used the 'data-muse' API (https://api.datamuse.com)
      * @param queryTerms represent the query parsed terms
      * @param queryID represent the given query ID
      */

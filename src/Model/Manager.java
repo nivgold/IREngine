@@ -49,7 +49,7 @@ public class Manager {
         }
         for (Map.Entry<String, TermDetails> entry : sortedDictionary){
             String term = entry.getKey();
-            if (term.equals(term.toUpperCase()) && (term.charAt(0) >= 'A' && term.charAt(0) <= 'Z')){
+            if (term.endsWith(" ")){
                 TermDetails termDetails = entry.getValue();
                 int pointer = Integer.parseInt(termDetails.getPostingPointer());
                 String postingValue = "";

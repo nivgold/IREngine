@@ -15,14 +15,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
-//Best for stemming k=1, b=0.75 termQuery>2 186   207
-//Best without stemming k=1 b=0.75 176
-//Best for stemming and offline k=1 b=0.75 170    198
-//Best for stemming and online k=1 b=0.75 171     185
-//Best without stemming and offline k=1 b=0.75 172
-//Best without stemming and online k=1 b=0.75 168
-//Best results so far were 1.5 , 3
-
 /**
  * this class represent a way to rank the relevant documents for a given parsed terms of a query
  */

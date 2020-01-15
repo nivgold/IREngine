@@ -96,6 +96,11 @@ public class Manager {
                 }
             }
         }
+        try {
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -178,6 +183,7 @@ public class Manager {
                         totalDocLength+=Integer.parseInt(values[3]);
                         documentDictionary.put(values[0], new DocumentDetails(values[0], Integer.parseInt(values[1]), Integer.parseInt(values[2]), Integer.parseInt(values[3])));
                     }
+                    bufferedReader.close();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

@@ -1052,8 +1052,6 @@ public class Parse{
                         continue;
                     if (currentLine.startsWith("Language:"))
                         continue;
-                    if (currentLine.equals("BFN"))
-                        continue;
                     stringBuilder.append(currentLine+"\n");
                 }
             }

@@ -39,7 +39,7 @@ public class Ranker {
     }
 
     /**
-     * returns a sorted list of relevant document descending order by their cosine similarity value
+     * returns a sorted list of relevant document in descending order by their BM25-Inner Product similarities with a weighted method
      * @param queryTerms parsed terms of the given query
      * @param dictionary inverted index dictionary
      * @param documentDictionary document dictionary
@@ -222,7 +222,6 @@ public class Ranker {
             String docNo = document.substring(0, document.indexOf(':'));
             int docLength = documentDictionary.get(docNo).getDocLength();
             double termDocumentTF = Double.parseDouble(document.substring(document.indexOf(':')+1));
-            double documentMaxTF = documentDictionary.get(docNo).getMaxTF();
 
             double queryWeight = normalizedQueryTF;
             double documentWeight = termDocumentTF;

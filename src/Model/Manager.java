@@ -265,6 +265,7 @@ public class Manager {
 
         // clean old memory
         Parse.docCounter.set(0);
+        Parse.totalDocLength.set(0);
         Indexer.invertedIndexDictionary = new ConcurrentHashMap<>();
     }
 

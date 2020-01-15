@@ -114,27 +114,30 @@ public class Ranker {
     private void activateFunctionOnSimilarity() {
         Set entrySet = BM25SimilarityMap.entrySet();
         ArrayList<Map.Entry<String, Double>> maxList = new ArrayList<>(entrySet);
-        double maxBM25 = Collections.max(maxList, new Comparator<Map.Entry<String, Double>>() {
-            @Override
-            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
-                return o1.getValue().compareTo(o2.getValue());
+        if (!maxList.isEmpty()) {
+            double maxBM25 = Collections.max(maxList, new Comparator<Map.Entry<String, Double>>() {
+                @Override
+                public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                    return o1.getValue().compareTo(o2.getValue());
+                }
+            }).getValue();
+            for (Map.Entry<String, Double> entry : BM25SimilarityMap.entrySet()){
+                BM25SimilarityMap.put(entry.getKey(), entry.getValue()/maxBM25);
+
             }
-        }).getValue();
+        }
         entrySet = innerProductSimilarityMap.entrySet();
         maxList = new ArrayList<>(entrySet);
-        double maxInnerProduct = Collections.max(maxList, new Comparator<Map.Entry<String, Double>>() {
-            @Override
-            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
-                return o1.getValue().compareTo(o2.getValue());
+        if (!maxList.isEmpty()) {
+            double maxInnerProduct = Collections.max(maxList, new Comparator<Map.Entry<String, Double>>() {
+                @Override
+                public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                    return o1.getValue().compareTo(o2.getValue());
+                }
+            }).getValue();
+            for (Map.Entry<String, Double> entry : innerProductSimilarityMap.entrySet()){
+                innerProductSimilarityMap.put(entry.getKey(), entry.getValue()/maxInnerProduct);
             }
-        }).getValue();
-        for (Map.Entry<String, Double> entry : BM25SimilarityMap.entrySet()){
-            BM25SimilarityMap.put(entry.getKey(), entry.getValue()/maxBM25);
-
-        }
-
-        for (Map.Entry<String, Double> entry : innerProductSimilarityMap.entrySet()){
-            innerProductSimilarityMap.put(entry.getKey(), entry.getValue()/maxInnerProduct);
         }
     }
 
